@@ -1,1 +1,26 @@
+## Atividades de Fixação e Arquitetura: Semana 2
 
+Este módulo do repositório foi desenvolvido aplicando os conceitos de Programação Orientada a Objetos (POO) em Kotlin, focado em encapsulamento estrito e gerenciamento de estados em memória.
+
+**Organização de Pastas do Projeto:**
+* `Semana2/model/Course.kt`: Dados do curso e validações de carga horária com blocos require.
+* `Semana2/model/CourseLevel.kt`: Enum para níveis técnicos (Básico, Intermediário e Avançado).
+* `Semana2/model/Enrollment.kt`: Matrícula vinculando estudantes às suas respectivas trilhas de aprendizado.
+* `Semana2/model/Progress.kt`: Lógica de cálculo de progresso imune a erros de divisão por zero.
+* `Semana2/model/Student.kt`: Validação de consistência e integridade de e-mail e nome do aluno.
+* `Semana2/model/Trail.kt`: Classe de trilha contendo encapsulamento da lista e travas de segurança.
+* `Semana2/model/TrailStatus.kt`: Enum de controle de estado da trilha (Open, Completed e Archived).
+* `Semana2/service/TrainingService.kt`: Camada de serviço responsável por armazenamento, buscas e vínculos.
+* `Semana2/main.kt`: Interface limpa via console UI para execução do fluxo do sistema.
+
+**Evolução e Marcos de Desenvolvimento:**
+* Segunda-feira: Planeamento da arquitetura do sistema Revolution, mapeamento de restrições de domínio e definição do fluxo de dados para o gerenciamento de treinamentos.
+* Terça-feira (Dia 1): Estruturação inicial das entidades base e proteção do sistema contra dados inválidos usando blocos de inicialização `init`.
+* Quarta-feira (Dia 2): Implementação de lista privada mutável e retorno imutável via `.toList()`, controle de duplicidades de cursos com predicados `.any`, buscas seguras disparando `NoSuchElementException` e isolamento completo da interface do console no menu principal com tratamento estruturado de `try/catch`.
+* Quinta-feira (Dia Final): Implementação do fluxo unificado de matrículas e mapeamento de progresso através de dicionários em memória. Desenvolvimento do algoritmo de ranking de performance com critério secundário de desempate por ordem alfabética e validação dos limites de dados com plano de testes manuais.
+
+**Checklist de Casos de Teste Executados (Validação de Borda):**
+* Teste Válido: Cadastro de aluno, curso, trilha, vínculo e matrícula executados com sucesso gerando percentual correto (Ex: 1 curso feito de 2 totalizando 50.0%).
+* Teste Inválido: Tentativa de atualizar progresso com número negativo ou acima do total de cursos da trilha disparando `IllegalArgumentException` de forma controlada.
+* Teste de Borda (Divisão por Zero): Matrícula de aluno em trilha com zero cursos cadastrados retornando percentual estável de 0.0% sem quebrar o sistema.
+* Teste de Borda (Desempate do Ranking): Dois alunos com exatamente o mesmo percentual de conclusão (ex: 100.0%) desempatados perfeitamente em ordem alfabética no menu de visualização.
