@@ -1,0 +1,47 @@
+===============================================================================
+                       RELATÓRIO DE ATIVIDADES DIÁRIAS
+===============================================================================
+
+Atividades de Fixação e Inventário Técnico: Robótica Móvel (Skill #23)
+
+Este registro detalha as atividades de gerenciamento de hardware do kit industrial
+e a preparação do ambiente de firmware das controladoras para a WorldSkills.
+
+-------------------------------------------------------------------------------
+📌 Resumo das Atividades do Dia
+-------------------------------------------------------------------------------
+* Auditoria Física: Contabilização e conferência completa de todos os componentes 
+  mecânicos, eletrônicos e estruturais pertencentes ao Kit Studica Lyon 2024.
+* Manutenção e Firmware: Execução dos procedimentos de atualização do processo 
+  de boot e firmware da controladora principal VMX-pi e da Titan Quad da Studica.
+
+-------------------------------------------------------------------------------
+📁 Componentes e Sistemas Gerenciados
+-------------------------------------------------------------------------------
+* `Studica_Kit_Lyon_2024/Mecanica`: Verificação de chassis, eixos, acoplamentos 
+  e elementos de fixação estrutural.
+* `Studica_Kit_Lyon_2024/Eletronica`: Inventário de atuadores, cabos de dados, 
+  chicotes elétricos e sensores do kit.
+* `Controladoras/VMX-pi`: Atualização do sistema de inicialização (boot) e imagem 
+  do Linux embarcado para suporte ao WPILib.
+* `Controladoras/Titan_Quad`: Flasheamento de firmware do controlador de motores 
+  via barramento de comunicação para garantir barramento CAN/I2C estável.
+
+-------------------------------------------------------------------------------
+⏳ Evolução e Marcos de Desenvolvimento
+-------------------------------------------------------------------------------
+* Etapa 1 (Manhã): Triagem física, contagem e preenchimento da planilha de 
+  conformidade de hardware do Kit Lyon 2024, mitigando a ausência de peças.
+* Etapa 2 (Tarde): Conexão em bancada das controladoras, diagnóstico do estado 
+  do firmware anterior e execução do deploy do novo boot loader na VMX e Titan.
+
+-------------------------------------------------------------------------------
+✅ Checklist de Validação de Hardware e Firmware (Casos de Borda)
+-------------------------------------------------------------------------------
+* Teste Válido (Comunicação): Inicialização pós-boot bem-sucedida com ping ativo 
+  na VMX-pi e reconhecimento imediato da Titan Quad via barramento utilitário.
+* Teste de Limite (Alimentação): Teste de oscilação de tensão na Titan Quad sob 
+  carga simulada, validando que o novo firmware mantém a integridade dos slots.
+* Teste de Borda (Firmware): Tentativa de upload com interrupção forçada de cabo, 
+  garantindo que o sistema de recuperação de boot não sofra corrupção permanente.
+===============================================================================
