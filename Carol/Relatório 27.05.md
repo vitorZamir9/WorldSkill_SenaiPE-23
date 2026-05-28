@@ -49,7 +49,4 @@ catalogação sistemática de insumos e auditoria estrutural do robô para a Wor
   junções principais, assegurando que nenhum elemento de fixação sofra desalinhamento.
 
 -------------------------------------------------------------------------------
-📸 Evidências Fotográficas
--------------------------------------------------------------------------------
-![Auditoria do Kit e Revisão do Robô](foto_evidencia_27_05.jpeg)
-===============================================================================
+
