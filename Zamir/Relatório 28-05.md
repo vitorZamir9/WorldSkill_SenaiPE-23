@@ -14,8 +14,7 @@ De acordo com os critérios de aceitação estabelecidos para o projeto:
 - [x] Repositório Git estruturado
 - [x] Inventário físico do Kit Studica Lyon
 - [x] Checklist elétrico e de segurança inicial
-- [ ] Diários técnicos individuais atualizados
-- [ ] Vídeo curto demonstrativo da bancada
+- [ ] Diários técnicos individuais updated
 
 ---
 
@@ -25,23 +24,34 @@ Acesse abaixo os registros detalhados de cada sessão de treinamento executada e
 * [📑 Relatório Técnico - 27/05/2026 (Auditoria Física e Firmware)](./Relat%C3%B3rio%2027-05)
 
 ---
+
 ## 📑 Relatório de Atividades Diárias (28/05/2026)
-
-
 
 ### 📌 Resumo das Atividades do Dia
 
-* **Auditoria Física:** Contabilização e conferência completa de todos os componentes mecânicos, eletrônicos e estruturais pertencentes ao Kit Studica Lyon 2024.
+* **Protocolo de Bancada:** Execução e validação do checklist estático de segurança e organização das ferramentas do posto de trabalho antes de qualquer acionamento elétrico.
 
- <div align="center">
-
-  <img src="Evid%C3%AAncias/ebe78332-41b0-41a6-b48e-d87f44b3fdcc.jpg" style="width:25%;" alt="Foto checando os materiais"/>
-
+<div align="center">
+  <img src="Evid%C3%AAncias/0e023ffc-a647-4455-b2f1-36d37572942a.jpg" style="width:30%; transform: rotate(180deg);" alt="Inspeção da bancada de trabalho"/>
 </div>
 
-* **Manutenção e Firmware:** Execução dos procedimentos de atualização do processo de boot e firmware da controladora principal VMX-pi e da Titan Quad da Studica.
+<br/>
 
-<br/> 
+* **Análise de Riscos Elétricos:** Identificação técnica e mapeamento prático de riscos operacionais com foco na integridade física das baterias e barramentos de potência.
+
+<div align="center">
+  <img src="Evid%C3%AAncias/5ee36cf4-0873-4a47-b1c1-a8ade23191a5.jpg" style="width:30%;" alt="Medição e checagem de sistemas elétricos"/>
+</div>
+
+<br/>
+
+* **Gestão Competitiva e Evidências:** Distribuição das responsabilidades de desenvolvimento e preenchimento sistemático do diário técnico para mitigação de falhas em prova.
+
+<div align="center">
+  <img src="Evid%C3%AAncias/9ca0af9e-5590-4db3-b9c3-4c85361a6070.jpg" style="width:30%;" alt="Registro das evidências no diário de bordo"/>
+</div>
+
+<br/>
 
 ---
 
