@@ -54,7 +54,7 @@ As atividades deste período focaram na validação das condições de seguranç
 -------------------------------------------------------------------------
 <br/>
 <div align="center">
-  <img src="EvidenciaControladorVMX28.05.jpg" style="width:45%;" alt="Módulo Controlador VMX Studica Robotics"/>
+  <img src="Evidencias/EvidenciaControladorVMX28.05.jpg" style="width:45%;" alt="Módulo Controlador VMX Studica Robotics"/>
 </div>
 <br/>
 
@@ -62,7 +62,7 @@ As atividades deste período focaram na validação das condições de seguranç
 📷 **Análise de Riscos Elétricos:** Medição direta com multímetro para validação da tensão nominal estável na linha de alimentação.
 -------------------------------------------------------------------------
 <div align="center">
-  <img src="evidenciamultimetro28.05.jpg" style="width:45%;" alt="Medição de tensão de 12.45V com alicate amperímetro e multímetro"/>
+  <img src="Evidencias/evidenciamultimetro28.05.jpg" style="width:45%;" alt="Medição de tensão de 12.45V com alicate amperímetro e multímetro"/>
 </div>
 <br/>
 
@@ -70,7 +70,7 @@ As atividades deste período focaram na validação das condições de seguranç
 📷 **Gestão Coletiva e Controle de Potência:** Inspeção visual direta do alinhamento físico e pinagem dos fusíveis na placa Titan Quad.
 -------------------------------------------------------------------------
 <div align="center">
-  <img src="evidenciaTitanQuad28.05.jpg" style="width:45%;" alt="Verificação de fusíveis na Titan Quad Motor Controller"/>
+  <img src="Evidencias/evidenciaTitanQuad28.05.jpg" style="width:45%;" alt="Verificação de fusíveis na Titan Quad Motor Controller"/>
 </div>
 <br/>
 
