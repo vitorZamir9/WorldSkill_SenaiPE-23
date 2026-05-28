@@ -25,7 +25,23 @@ Acesse abaixo os registros detalhados de cada sessão de treinamento executada e
 * [📑 Relatório Técnico - 27/05/2026 (Auditoria Física e Firmware)](./Relat%C3%B3rio%2027-05)
 
 ---
+## 📑 Relatório de Atividades Diárias (28/05/2026)
 
+
+
+### 📌 Resumo das Atividades do Dia
+
+* **Auditoria Física:** Contabilização e conferência completa de todos os componentes mecânicos, eletrônicos e estruturais pertencentes ao Kit Studica Lyon 2024.
+
+ <div align="center">
+
+  <img src="Evid%C3%AAncias/ebe78332-41b0-41a6-b48e-d87f44b3fdcc.jpg" style="width:25%;" alt="Foto checando os materiais"/>
+
+</div>
+
+* **Manutenção e Firmware:** Execução dos procedimentos de atualização do processo de boot e firmware da controladora principal VMX-pi e da Titan Quad da Studica.
+
+<br/> 
 
 ---
 
