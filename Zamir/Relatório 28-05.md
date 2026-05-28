@@ -30,17 +30,36 @@ Acesse abaixo os registros detalhados de cada sessão de treinamento executada e
 ### 📌 Resumo das Atividades do Dia
 
 * **Protocolo de Bancada:** Execução e validação do checklist estático de segurança e organização das ferramentas do posto de trabalho antes de qualquer acionamento elétrico.
+  > ℹ️ *Nota: Este protocolo específico não foi requisitado para as atividades executadas no dia de hoje devido ao foco exclusivo em firmware de bancada isolada.*
+
+* **Manutenção e Atualização da VMX-pi:** Realização do procedimento de flash e atualização do firmware da controladora principal VMX-pi para garantir total estabilidade com o ambiente de desenvolvimento.
 
 <div align="center">
-  <img src="Evid%C3%AAncias/0e023ffc-a647-4455-b2f1-36d37572942a.jpg" style="width:30%; transform: rotate(180deg);" alt="Inspeção da bancada de trabalho"/>
+  <img src="Evid%C3%AAncias/Vmx_foto.jpg" style="width:30%;" alt="Atualizando a VMX-pi"/>
 </div>
 
 <br/>
 
-* **Análise de Riscos Elétricos:** Identificação técnica e mapeamento prático de riscos operacionais com foco na integridade física das baterias e barramentos de potência.
+* **Firmware da Titan Quad:** Processo de deploy e atualização de firmware concluído com sucesso na controladora de motores Titan Quad da Studica, assegurando uma comunicação limpa via barramento CAN/I2C.
 
 <div align="center">
-  <img src="Evid%C3%AAncias/5ee36cf4-0873-4a47-b1c1-a8ade23191a5.jpg" style="width:30%;" alt="Medição e checagem de sistemas elétricos"/>
+  <img src="Evid%C3%AAncias/titan.jpg" style="width:30%;" alt="Atualização de firmware da Titan Quad"/>
+</div>
+
+<br/>
+
+* **Análise de Riscos Elétricos e Organização de Fusíveis:** Mapeamento preventivo dos fusíveis de proteção da Titan Quad[cite: 1]. Eles atuam como a primeira linha de defesa contra sobrecorrente e curtos-circuitos elétricos, protegendo os circuitos lógicos internos da controladora e os canais dos motores caso ocorra um pico abrupto de corrente (como em cenários de stall).
+
+<div align="center">
+  <img src="Evid%C3%AAncias/titan_fusiveis.jpg" style="width:30%;" alt="Organização dos fusíveis da Titan"/>
+</div>
+
+<br/>
+
+* **Identificação de Baixa Tensão na Bateria:** Monitoramento em tempo real através do software de telemetria para identificar quedas de tensão críticas (abaixo de 12V)[cite: 1]. Essa medição previne danos permanentes às células da bateria e previne comportamentos imprevisíveis (brownouts) no robô durante a execução das tarefas.
+
+<div align="center">
+  <img src="Evid%C3%AAncias/baixa%20tens%C3%A3o%20bateria.jpg" style="width:20%;" alt="Identificação de baixa tensão na bateria"/>
 </div>
 
 <br/>
@@ -52,12 +71,11 @@ Acesse abaixo os registros detalhados de cada sessão de treinamento executada e
 </div>
 
 <br/>
-
 ---
 
 ## ⚠️ Critérios de Parada Crítica
-A execução em bancada deve ser interrompida imediatamente caso ocorra qualquer uma das seguintes anomalias antes ou durante a energização[cite: 1]:
-> 1. Bateria suspeita ou com tensão abaixo de 12 V[cite: 1].
-> 2. Dispositivo de E-Stop (Parada de Emergência) não localizado ou inacessível[cite: 1].
-> 3. Fusíveis de proteção da controladora Titan Quad ausentes ou danificados[cite: 1].
-> 4. Presença de cabos elétricos sem etiqueta de identificação de origem/destino[cite: 1].
+A execução em bancada deve ser interrompida imediatamente caso ocorra qualquer uma das seguintes anomalias antes ou durante a energização:
+> 1. Bateria suspeita ou com tensão abaixo de 12 V.
+> 2. Dispositivo de E-Stop (Parada de Emergência) não localizado ou inacessível.
+> 3. Fusíveis de proteção da controladora Titan Quad ausentes ou danificados.
+> 4. Presença de cabos elétricos sem etiqueta de identificação de origem/destino.
