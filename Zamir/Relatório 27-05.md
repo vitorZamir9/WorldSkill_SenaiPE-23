@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/a547579f-f725-4e2e-8bf1-caec1e7137d9" style="width:50%;" alt="Logo WorldSkills"/>
+  <img src="https://github.com/user-attachments/assets/6949fade-134c-4375-8fb0-e43589e54f30" style="width:30%;" alt="Logo WorldSkills"/>
 </div>
 
 <br/>
@@ -35,8 +35,8 @@
 ## 📑 Relatório de Atividades Diárias (27/05/2026)
 
 ### 📌 Resumo das Atividades do Dia
-* **Auditoria Física:** Contabilização e conferência completa de todos os componentes mecânicos, eletrônicos e estruturais pertencentes ao Kit Studica Lyon 2024.
-* **Manutenção e Firmware:** Execução dos procedimentos de atualização do processo de boot e firmware da controladora principal VMX-pi e da Titan Quad da Studica.
+* **Auditoria Física:** Contabilização e conferência completa de todos os componentes mecânicos, eletrônicos e estruturais pertencentes ao Kit Studica Lyon 2024[cite: 1].
+* **Manutenção e Firmware:** Execução dos procedimentos de atualização do processo de boot e firmware da controladora principal VMX-pi e da Titan Quad da Studica[cite: 1].
 
 <br/>
 
@@ -52,19 +52,19 @@
   <tbody>
     <tr>
       <td><code>Studica_Kit_Lyon_2024/Mecanica</code></td>
-      <td>Verificação de chassis, eixos, acoplamentos e elementos de fixação estrutural.</td>
+      <td>Verificação de chassis, eixos, acoplamentos e elementos de fixação estrutural[cite: 1].</td>
     </tr>
     <tr>
       <td><code>Studica_Kit_Lyon_2024/Eletronica</code></td>
-      <td>Inventário de atuadores, cabos de dados, chicotes elétricos e sensores do kit.</td>
+      <td>Inventário de atuadores, cabos de dados, chicotes elétricos e sensores do kit[cite: 1].</td>
     </tr>
     <tr>
       <td><code>Controladoras/VMX-pi</code></td>
-      <td>Atualização do sistema de inicialização (boot) e imagem do Linux embarcado para suporte ao WPILib.</td>
+      <td>Atualização do sistema de inicialização (boot) e imagem do Linux embarcado para suporte ao WPILib[cite: 1].</td>
     </tr>
     <tr>
       <td><code>Controladoras/Titan_Quad</code></td>
-      <td>Flasheamento de firmware do controlador de motores via barramento de comunicação para garantir barramento CAN/I2C estável.</td>
+      <td>Flasheamento de firmware do controlador de motores via barramento de comunicação para garantir barramento CAN/I2C estável[cite: 1].</td>
     </tr>
   </tbody>
 </table>
@@ -75,8 +75,8 @@
 
 <img src="https://private-user-images.githubusercontent.com/100859276/363510327-a0c5800d-fcd0-47f1-990c-3d6951691d1c.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3Nzc0OTE1NDksIm5iZiI6MTc3NzQ5MTI0OSwicGF0aCI6Ii8xMDA4NTkyNzYvMzYzNTEwMzI3LWEwYzU4MDBkLWZjZDAtNDdmMS05OTBjLTNkNjk1MTY5MWQxYy5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwNDI5JTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDQyOVQxOTM0MDlaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT1jOGQ2NzUxMDgwMzZkZjMxMDc1MzgxNTU2YTBkNGQzOWNhNzU2ZGZiMjYzMzg5ZWI5MGE3NjE4NTE3ZGJmNDViJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZyZXNwb25zZS1jb250ZW50LXR5cGU9aW1hZ2UlMkZwbmcifQ.UwHvrhlFCXPWQa_A-zszZy_3U309LtPTPypqP8U07OA" align="right" width="40%" style="margin-left: 15px; border-radius: 5px;"/>
 
-* **Etapa 1 (Manhã):** Triagem física, contagem e preenchimento da planilha de conformidade de hardware do Kit Lyon 2024, mitigando e prevenindo ativamente a ausência de peças fundamentais durante os testes em bancada.
-* **Etapa 2 (Tarde):** Conexão em bancada das controladoras sob protocolo estático, diagnóstico do estado do firmware anterior e execução bem-sucedida do deploy do novo boot loader e sistema operacional na VMX e Titan Quad.
+* **Etapa 1 (Manhã):** Triagem física, contagem e preenchimento da planilha de conformidade de hardware do Kit Lyon 2024, mitigando e prevenindo ativamente a ausência de peças durante o ciclo de montagem[cite: 1].
+* **Etapa 2 (Tarde):** Conexão em bancada de todas as controladoras lógicas, diagnóstico do estado do firmware anteriormente instalado e execução sistemática do deploy do novo boot loader tanto na VMX-pi quanto na Titan Quad[cite: 1].
 
 <br clear="right"/>
 
@@ -84,9 +84,9 @@
 
 ## ✅ Checklist de Validação de Hardware & Casos de Borda
 
-* **Teste Válido (Comunicação):** Inicialização pós-boot bem-sucedida com ping ativo na VMX-pi e reconhecimento imediato e estável da placa Titan Quad via barramento utilitário de comunicação.
-* **Teste de Limite (Alimentação):** Monitoramento e teste de oscilação de tensão na Titan Quad sob carga simulada de bancada, validando que as novas diretrizes do firmware mantêm a integridade e segurança lógica dos slots.
-* **Teste de Borda (Firmware):** Tentativa de upload crítico de firmware com interrupção forçada do cabo de dados, garantindo que o sistema de recuperação física de boot (recovery mode) não sofra corrupção permanente.
+* **Teste Válido (Comunicação):** Inicialização pós-boot bem-sucedida com ping ativo via protocolo de rede na VMX-pi e reconhecimento imediato da controladora Titan Quad através do barramento utilitário[cite: 1].
+* **Teste de Limite (Alimentação):** Monitoramento e teste de oscilação de tensão elétrica nos barramentos da Titan Quad sob regime de carga simulada, validando que o novo firmware mantém a integridade operacional de todos os slots[cite: 1].
+* **Teste de Borda (Firmware):** Tentativa de upload de firmware com interrupção forçada via desconexão física do cabo de dados, garantindo que o sistema de recuperação de emergência do boot loader impeça a corrupção permanente do hardware[cite: 1].
 
 ---
 
