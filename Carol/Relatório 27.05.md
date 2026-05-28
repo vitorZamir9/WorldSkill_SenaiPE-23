@@ -4,7 +4,7 @@
 
 <h1 align="center"> WorldsSkills - #23 Robótica Móvel </h1>
 
-Relatório das Atividades Diárias -> 27/05
+Relatório das Atividades Semanais -> 27/05 - 29/05
 -------------------------------------------------------------------------------
 Atividades de Fixação, Inventário Técnico e Análise Mecânica: Robótica Móvel (Skill #23)
 
