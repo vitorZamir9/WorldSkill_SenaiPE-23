@@ -4,10 +4,6 @@
 
 <h1 align="center"> WorldsSkills - #23 Robótica Móvel </h1>
 
-<p align="center">
-  Repositório dedicado ao projeto P0 - Baseline competitivo e setup.
-</p>
-
 ## Cronograma Semanal 
 * **Semana de Trabalho:** 01
 * **Intervalo de Dias:** 23/05/2026 a 29/05/2026
@@ -36,55 +32,52 @@ As atividades deste período focaram na validação das condições de seguranç
 ### ⏳ Linha do Tempo e Evolução Técnica
 
 * **Período da Manhã: Inspeção de Segurança e Organização Estática**
-  Foco na aplicação do checklist de conformidade do posto de trabalho. Realizamos a triagem das ferramentas de precisão e a verificação estrutural da bancada antes de efetuar qualquer conexão ou ligação física nos componentes do robô.
+  Foco na aplicação do checklist de conformidade do posto de trabalho. Realizamos a triagem das ferramentas de precisão e a verificação estrutural da bancada antes de efetuar qualquer conexão ou ligação física nos componentes de processamento do robô.
   
 * **Período da Tarde: Mapeamento de Riscos e Divisão de Funções**
-  Análise de pontos críticos na distribuição de energia da controladora. Efetuamos vistorias preventivas nas conexões de potência para evitar curtos-circuitos e organizamos o plano de ação individual para o cumprimento do diário de bordo técnico.
+  Análise de pontos críticos na distribuição de energia da controladora. Efetuamos vistorias preventivas nas conexões de potência e na medição das baterias com multímetro para evitar curtos-circuitos, além de organizar o plano de ação individual para o diário técnico.
 
 ---
 
 ### ✅ Checklist de Validação e Segurança de Hardware
 
-* **Verificação de Bancada (Segurança Geral):** Inspeção visual para certificar o aperto de fixadores mecânicos e garantir o isolamento completo de emendas e fiações.
-* **Análise de Sinais (Mapeamento de Potência):** Checagem física da continuidade dos cabos elétricos principais, prevenindo aquecimentos anômalos no circuito da controladora Titan Quad.
-* **Teste de Proteção (Comportamento de Emergência):** Simulação de desligamento forçado do sistema para atestar a resposta imediata de interrupção de energia dos atuadores.
+* **Verificação de Bancada (Segurança Geral):** Inspeção visual para certificar o correto acoplamento dos cabos de comunicação e alimentação nas interfaces lógicas essenciais.
+* **Análise de Sinais (Mapeamento de Potência):** Checagem física da continuidade dos cabos elétricos principais e medição direta da tensão de operação para evitar sobrecarga elétrica no circuito.
+* **Teste de Proteção (Comportamento de Emergência):** Monitoramento visual da integridade física dos fusíveis instalados no painel lateral de distribuição de potência para assegurar o corte correto em caso de picos de corrente.
 
 ---
-
 ### 📸 Evidências Fotográficas
 
 -------------------------------------------------------------------------
-📷 **Protocolo de Bancada:** Organização do espaço físico e triagem de segurança.
+📷 **Protocolo de Bancada:** Posicionamento e inspeção física estrutural do controlador lógico e fiação de dados.
 -------------------------------------------------------------------------
 <div align="center">
-  <img src="Evid%C3%AAncias/0e023ffc-a647-4455-b2f1-36d37572942a.jpg" style="width:30%; transform: rotate(180deg);" alt="Inspeção da bancada de trabalho"/>
+  <img src="image_e6a684.jpg" style="width:45%;" alt="Módulo Controlador VMX Studica Robotics"/>
 </div>
 
 <br/>
 
 -------------------------------------------------------------------------
-📷 **Análise de Riscos Elétricos:** Monitoramento preventivo de barramentos de força.
+📷 **Análise de Riscos Elétricos:** Medição direta com multímetro para validação da tensão nominal estável na linha de alimentação.
 -------------------------------------------------------------------------
 <div align="center">
-  <img src="Evid%C3%AAncias/5ee36cf4-0873-4a47-b1c1-a8ade23191a5.jpg" style="width:30%;" alt="Medição e checagem de sistemas elétricos"/>
+  <img src="image_e6a6a6.jpg" style="width:45%;" alt="Medição de tensão de 12.45V com alicate amperímetro e multímetro"/>
 </div>
 
 <br/>
 
 -------------------------------------------------------------------------
-📷 **Gestão Coletiva:** Divisão de tarefas diárias e preenchimento de evidências.
+📷 **Gestão Coletiva e Controle de Potência:** Inspeção visual direta do alinhamento físico e pinagem dos fusíveis na placa Titan Quad.
 -------------------------------------------------------------------------
 <div align="center">
-  <img src="Evid%C3%AAncias/9ca0af9e-5590-4db3-b9c3-4c85361a6070.jpg" style="width:30%;" alt="Registro das evidências no diário de bordo"/>
+  <img src="image_e6a6c3.jpg" style="width:45%;" alt="Verificação de fusíveis na Titan Quad Motor Controller"/>
 </div>
 
 <br/>
-
----
 
 ## ⚠️ Condições para Interrupção Imediata (Parada Crítica)
 O acionamento elétrico ou teste de bancada deve ser suspenso de imediato caso seja detectada qualquer uma das seguintes irregularidades:
-> 1. Presença de baterias com deformações físicas (estufadas) ou com carga residual abaixo do limite nominal de 12 V.
+> 1. Presença de baterias com deformações físicas (estufadas) ou com carga residual abaixo do limite seguro de 12 V.
 > 2. Botão de Parada de Emergência (E-Stop) obstruído ou posicionado fora do raio de alcance rápido do operador.
 > 3. Ausência, quebra ou sinais de oxidação nos fusíveis críticos instalados na placa de controle Titan Quad.
 > 4. Falta de padronização ou ausência de anilhas/etiquetas de identificação nos cabos condutores do circuito do robô.
