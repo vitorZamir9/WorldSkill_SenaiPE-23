@@ -4,5 +4,5 @@
 
 <h1 align="center"> WorldsSkills - #23 Robótica Móvel </h1>
 
-Repositório da #23 na WorldSkills 
+Repositório dos competidores de Robótica Móvel da WorldSkills 
 ------------------------------------
