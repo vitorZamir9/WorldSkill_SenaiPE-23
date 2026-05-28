@@ -1,3 +1,13 @@
+<p align="center">
+  <img src="https://vectorseek.com/wp-content/uploads/2023/08/WorldSkills-Logo-Vector.svg-.png" alt="WorldSkills Logo" width="250"/>
+</p>
+
+<h1 align="center"> WorldSkills - #23 Robótica Móvel </h1>
+
+<p align="center">
+  Repositório dedicado ao projeto P0 - Baseline competitivo e setup.
+</p>
+
 # 📋 Relatório Técnico: Consolidação e Entrega Final da Semana 01
 
 ## 🎯 Objetivo Operacional
