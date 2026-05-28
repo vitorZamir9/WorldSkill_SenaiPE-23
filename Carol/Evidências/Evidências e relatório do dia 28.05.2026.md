@@ -46,14 +46,15 @@ As atividades deste período focaram na validação das condições de seguranç
 * **Teste de Proteção (Comportamento de Emergência):** Monitoramento visual da integridade física dos fusíveis instalados no painel lateral de distribuição de potência para assegurar o corte correto em caso de picos de corrente.
 
 ---
-### 📸 Evidências Fotográficas
+
+### 📸 Evidências Fotograficas
 
 -------------------------------------------------------------------------
 📷 **Protocolo de Bancada:** Posicionamento e inspeção física estrutural do controlador lógico e fiação de dados.
 -------------------------------------------------------------------------
 <br/>
 <div align="center">
-  <img src="EvidenciaControladorVMX28.05.jpg" style="width:45%;" alt="Módulo Controlador VMX Studica Robotics"/>
+  <img src="Evidências/EvidenciaControladorVMX28.05.jpg" style="width:45%;" alt="Módulo Controlador VMX Studica Robotics"/>
 </div>
 <br/>
 
@@ -61,7 +62,7 @@ As atividades deste período focaram na validação das condições de seguranç
 📷 **Análise de Riscos Elétricos:** Medição direta com multímetro para validação da tensão nominal estável na linha de alimentação.
 -------------------------------------------------------------------------
 <div align="center">
-  <img src="evidenciamultimetro28.05.jpg" style="width:45%;" alt="Medição de tensão de 12.45V com alicate amperímetro e multímetro"/>
+  <img src="Evidências/evidenciamultimetro28.05.jpg" style="width:45%;" alt="Medição de tensão de 12.45V com alicate amperímetro e multímetro"/>
 </div>
 <br/>
 
@@ -69,7 +70,7 @@ As atividades deste período focaram na validação das condições de seguranç
 📷 **Gestão Coletiva e Controle de Potência:** Inspeção visual direta do alinhamento físico e pinagem dos fusíveis na placa Titan Quad.
 -------------------------------------------------------------------------
 <div align="center">
-  <img src="evidenciaTitan Quad28.05.jpg" style="width:45%;" alt="Verificação de fusíveis na Titan Quad Motor Controller"/>
+  <img src="Evidências/evidenciaTitan Quad28.05.jpg" style="width:45%;" alt="Verificação de fusíveis na Titan Quad Motor Controller"/>
 </div>
 <br/>
 
