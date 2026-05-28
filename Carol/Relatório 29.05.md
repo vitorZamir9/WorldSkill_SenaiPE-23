@@ -42,4 +42,3 @@ Para comprovar o estado final da montagem e do setup da semana, geramos evidênc
 ---
 
 **Status da Fase P0:** `CONCLUÍDA` 
-**Aprovação para Avanço:** `SIM`
