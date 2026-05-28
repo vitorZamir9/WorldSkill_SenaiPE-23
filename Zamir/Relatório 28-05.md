@@ -23,19 +23,9 @@ De acordo com os critérios de aceitação estabelecidos para o projeto:
 Acesse abaixo os registros detalhados de cada sessão de treinamento executada em bancada:
 
 * [📑 Relatório Técnico - 27/05/2026 (Auditoria Física e Firmware)](./Relat%C3%B3rio%2027-05)
-* [📑 Relatório Técnico - 28/05/2026 (Checklist de Segurança e Análise de Riscos)](./Relat%C3%B3rio%2028-05)
 
 ---
 
-## 📊 Métricas de Performance da Semana
-Métricas consolidadas com base nos testes de validação em bancada:
-
-| Métrica Avaliada | Meta Estipulada | Resultado Obtido | Status |
-| :--- | :---: | :---: | :---: |
-| **Tempo de Setup da Bancada** | < 20 min[cite: 1] | *A registrar* | ⏳ |
-| **Tempo de Execução do Checklist** | < 10 min[cite: 1] | *A registrar* | ⏳ |
-| **Pendências Críticas Abertas (Issues)** | 0[cite: 1] | 0[cite: 1] | ✅ |
-| **Commits Técnicos Rastreáveis** | ≥ 3[cite: 1] | 3[cite: 1] | ✅ |
 
 ---
 
