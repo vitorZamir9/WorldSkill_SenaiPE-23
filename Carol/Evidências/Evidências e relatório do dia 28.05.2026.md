@@ -52,26 +52,25 @@ As atividades deste período focaram na validação das condições de seguranç
 -------------------------------------------------------------------------
 📷 **Protocolo de Bancada:** Posicionamento e inspeção física estrutural do controlador lógico e fiação de dados.
 -------------------------------------------------------------------------
-<br/>
-<div align="center">
-  <img src="Evid%C3%AAncias/EvidenciaControladorVMX28.05.jpg" style="width:45%;" alt="Módulo Controlador VMX Studica Robotics"/>
-</div>
+
+*(Evidência fotográfica armazenada no repositório)*
+
 <br/>
 
 -------------------------------------------------------------------------
 📷 **Análise de Riscos Elétricos:** Medição direta com multímetro para validação da tensão nominal estável na linha de alimentação.
 -------------------------------------------------------------------------
-<div align="center">
-  <img src="Evid%C3%AAncias/evidenciamultimetro28.05.jpg" style="width:45%;" alt="Medição de tensão de 12.45V com alicate amperímetro e multímetro"/>
-</div>
+
+*(Evidência fotográfica armazenada no repositório)*
+
 <br/>
 
 -------------------------------------------------------------------------
 📷 **Gestão Coletiva e Controle de Potência:** Inspeção visual direta do alinhamento físico e pinagem dos fusíveis na placa Titan Quad.
 -------------------------------------------------------------------------
-<div align="center">
-  <img src="Evid%C3%AAncias/evidenciaTitanQuad28.05.jpg" style="width:45%;" alt="Verificação de fusíveis na Titan Quad Motor Controller"/>
-</div>
+
+*(Evidência fotográfica armazenada no repositório)*
+
 <br/>
 
 ## ⚠️ Condições para Interrupção Imediata (Parada Crítica)
