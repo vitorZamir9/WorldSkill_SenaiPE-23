@@ -8,7 +8,7 @@
   Repositório dedicado ao projeto P0 - Baseline competitivo e setup.
 </p>
 
-## 📅 Status do Cronograma
+## Cronograma Semanal 
 * **Semana de Trabalho:** 01
 * **Intervalo de Dias:** 23/05/2026 a 29/05/2026
 * **Status da Fase:** P0 - Alinhamento de hardware e checagem inicial
