@@ -1,6 +1,6 @@
-
-                        RELATÓRIO DE ATIVIDADES DIÁRIAS
-                        
+-------------------------------------------------------------------------------
+Relatório das Atividades Diárias -> 27/05
+-------------------------------------------------------------------------------
 Atividades de Fixação, Inventário Técnico e Análise Mecânica: Robótica Móvel (Skill #23)
 
 Este registro detalha as atividades de gerenciamento de hardware do kit industrial,
