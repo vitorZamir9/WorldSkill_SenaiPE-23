@@ -51,5 +51,8 @@ catalogação sistemática de insumos e auditoria estrutural do robô para a Wor
 -------------------------------------------------------------------------------
 📸 Evidências Fotográficas
 -------------------------------------------------------------------------------
-![Auditoria do Kit e Revisão do Robô](foto_evidencia_27_05.jpeg)
-===============================================================================
+<br/>
+<div align="center">
+  <img src="foto_evidencia_27_05.jpeg" style="width:45%;" alt="Auditoria do Kit e Revisão do Robô de Ontem"/>
+</div>
+<br/>
