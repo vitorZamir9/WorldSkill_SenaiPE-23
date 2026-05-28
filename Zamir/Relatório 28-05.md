@@ -4,18 +4,18 @@
 * **Semana:** 01
 * **Período:** 23/05/2026 a 29/05/2026
 * **Fase:** P0 - Baseline competitivo e setup
-* **Projeto Central:** Baseline de bancada e inventário competitivo[cite: 1]
+* **Projeto Central:** Baseline de bancada e inventário competitivo
 
 ---
 
 ## 📌 Status dos Entregáveis da Semana
-De acordo com os critérios de aceitação estabelecidos para o projeto[cite: 1]:
+De acordo com os critérios de aceitação estabelecidos para o projeto:
 
-- [x] Repositório Git estruturado[cite: 1]
-- [x] Inventário físico do Kit Studica Lyon[cite: 1]
-- [x] Checklist elétrico e de segurança inicial[cite: 1]
-- [ ] Diários técnicos individuais atualizados[cite: 1]
-- [ ] Vídeo curto demonstrativo da bancada[cite: 1]
+- [x] Repositório Git estruturado
+- [x] Inventário físico do Kit Studica Lyon
+- [x] Checklist elétrico e de segurança inicial
+- [ ] Diários técnicos individuais atualizados
+- [ ] Vídeo curto demonstrativo da bancada
 
 ---
 
@@ -28,7 +28,7 @@ Acesse abaixo os registros detalhados de cada sessão de treinamento executada e
 ---
 
 ## 📊 Métricas de Performance da Semana
-Métricas consolidadas com base nos testes de validação em bancada[cite: 1]:
+Métricas consolidadas com base nos testes de validação em bancada:
 
 | Métrica Avaliada | Meta Estipulada | Resultado Obtido | Status |
 | :--- | :---: | :---: | :---: |
