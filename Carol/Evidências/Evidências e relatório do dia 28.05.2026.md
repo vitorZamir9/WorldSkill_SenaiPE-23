@@ -26,14 +26,6 @@ Acompanhamento dos requisitos obrigatórios estabelecidos para o desenvolvimento
 
 ---
 
-## 📁 Registro Histórico de Atividades
-Consulte a documentação técnica das sessões anteriores por meio dos links abaixo:
-
-* [📑 Relatório Técnico - 27/05/2026 (Auditoria Física e Firmware)](./Relat%C3%B3rio%2027-05)
-* [📑 Relatório Técnico - 28/05/2026 (Segurança de Bancada e Riscos Elétricos)](./Relat%C3%B3rio%2028-05)
-
----
-
 ## 📑 Relatório de Atividades em Bancada (28/05/2026)
 
 ### 📊 Metodologia Operacional do Dia
