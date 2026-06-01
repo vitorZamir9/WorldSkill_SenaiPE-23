@@ -78,7 +78,7 @@ Acesse abaixo os registros detalhados de cada sessão de treinamento executada e
 * **Etapa 2 (Tarde):** Execução do protocolo de atualização de firmware na controladora física Titan Quad. O sistema apresentou uma falha no barramento de escrita, fazendo com que o driver permanecesse retido na versão legada `1.0.0`. O erro foi isolado para análise de hardware e abertura de relatório de falhas.
 
 <div align="center">
-  <img src="Evid%C3%AAncias/problema%20atualizar%20titan.jpg" style="width:30%;" alt="Problema na atualização da Titan"/>
+  <img src="https://github.com/vitorZamir9/WorldSkill_Senai-23/blob/0febf456ed64ecb9d08bd3b72176602c33b22bb7/Zamir/Evid%C3%AAncias/problema%20atualizar%20titan.png" style="width:30%;" alt="Problema na atualização da Titan"/>
 </div>
 
 <br/>
