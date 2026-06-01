@@ -1,22 +1,22 @@
 # 🤖 WorldSkills #23 - Mobile Robotics
 
 ## 📅 Cronograma Vigente
-* **Semana:** 02[cite: 2]
-* **Período:** 30/05/2026 a 05/06/2026[cite: 2]
-* **Fase:** P0 - Ambiente oficial e lógica aplicada[cite: 2]
-* **Projeto Central:** Hello Robot com MockDS e telemetria mínima[cite: 2]
+* **Semana:** 02
+* **Período:** 30/05/2026 a 05/06/2026
+* **Fase:** P0 - Ambiente oficial e lógica aplicada
+* **Projeto Central:** Hello Robot com MockDS e telemetria mínima
 
 ---
 
 ## 📌 Status dos Entregáveis da Semana
-De acordo com os critérios de aceitação estabelecidos para o projeto[cite: 2]:
+De acordo com os critérios de aceitação estabelecidos para o projeto:
 
-- [x] Projeto Java estruturado e compilando[cite: 2]
-- [x] Ambiente de simulação MockDS funcionando[cite: 2]
-- [x] Injeção de logs de transição de Enable/Disable[cite: 2]
-- [x] Criação do primeiro subsistema lógico (POO)[cite: 2]
-- [ ] Documentação do README de instalação concluída[cite: 2]
-- [ ] Vídeo curto demonstrativo do fluxo de simulação[cite: 2]
+- [x] Projeto Java estruturado e compilando
+- [x] Ambiente de simulação MockDS funcionando
+- [x] Configuração de ferramentas de telemetria (Shuffleboard)
+- [x] Injeção de logs de transição de Enable/Disable
+- [ ] Documentação do README de instalação concluída
+- [ ] Resolução da pendência de firmware da Titan Quad
 
 ---
 
@@ -32,9 +32,9 @@ Acesse abaixo os registros detalhados de cada sessão de treinamento executada e
 ## 📑 Relatório de Atividades Diárias (01/06/2026)
 
 ### 📌 Resumo das Atividades do Dia
-* **Auditoria de Ambiente e Build:** Verificação da pasta raiz do projeto no VS Code, validação das extensões da WPILib e execução do primeiro build de compilação via GradleRIO[cite: 2].
-* **Lógica Aplicada e Simulação:** Configuração e execução do ecossistema de testes com o simulador MockDS, validando as transições de estado lógico do robô e a geração de telemetria[cite: 2].
-* **Modularização em POO:** Desenvolvimento da primeira classe Java de subsistema estruturado (`SystemHealth`), isolando as chamadas e a responsabilidade dos logs lógicos centrais do programa[cite: 2].
+* **Rollback e Compatibilização de Software:** Atualização e calibração do ecossistema de desenvolvimento WPILib para a versão estável de 2020, alinhando as dependências do GradleRIO às exigências do controlador técnico.
+* **Organização do Portfólio de Firmware:** Estruturação, categorização e limpeza dos softwares utilitários de programação e gerenciamento das controladoras lógicas centrais VMX-pi e Titan Quad.
+* **Diagnóstico de Comunicação e Telemetria:** Configuração das interfaces de instrumentação em tempo real, realizando a integração de dados lógicos entre a simulação via MockDS e os dashboards do Shuffleboard.
 
 <br/>
 
@@ -49,16 +49,16 @@ Acesse abaixo os registros detalhados de cada sessão de treinamento executada e
   </thead>
   <tbody>
     <tr>
-      <td><code>Ambiente/VS_Code_WPILib</code></td>
-      <td>Abertura do projeto pelo diretório raiz, inspeção dos arquivos <code>build.gradle</code> e execução de build limpo para depuração de erros de sintaxe Java[cite: 2].</td>
+      <td><code>Ambiente/WPILib_2020</code></td>
+      <td>Configuração do deploy de software do projeto e fixação do ecossistema na versão 2020 para total compatibilidade de bibliotecas.</td>
     </tr>
     <tr>
-      <td><code>Simulação/MockDS</code></td>
-      <td>Integração da lógica de controle com a interface do MockDS, permitindo o acionamento remoto dos estados de operação[cite: 2].</td>
+      <td><code>Controladoras/Gerenciamento_Bancada</code></td>
+      <td>Organização lógica e estrutural dos caminhos de execução dos programas de firmware da VMX-pi e ferramentas utilitárias da Titan Quad.</td>
     </tr>
     <tr>
-      <td><code>Classes/SystemHealth</code></td>
-      <td>Instanciação do primeiro objeto de subsistema para centralizar o rastreamento do estado de saúde física e modos lógicos da controladora[cite: 2].</td>
+      <td><code>Interface/Shuffleboard_MockDS</code></td>
+      <td>Mapeamento do fluxo de rede e canais de dados de telemetria utilizando a ferramenta gráfica Shuffleboard conectada ao ambiente MockDS.</td>
     </tr>
   </tbody>
 </table>
@@ -67,8 +67,27 @@ Acesse abaixo os registros detalhados de cada sessão de treinamento executada e
 
 ### ⏳ Linha do Tempo e Evolução do Dia
 
-* **Etapa 1 (Manhã):** Resolução de falhas de ambiente onde as tarefas do GradleRIO não eram reconhecidas por abertura de subpastas incorretas (`src/`)[cite: 2]. Ajuste do diretório raiz no VS Code, preenchimento do checklist de ambiente e execução de build nominal bem-sucedido[cite: 2].
-* **Etapa 2 (Tarde):** Implementação dos métodos públicos `.logStartup()` e `.logMode()` no subsistema Java[cite: 2]. Execução do código de simulação em tempo real alternando os modos no painel do MockDS para capturar de forma limpa as mensagens geradas no console[cite: 2].
+* **Etapa 1 (Manhã):** Limpeza geral e classificação dos programas do ambiente de desenvolvimento. Atualização sistemática do stack WPILib para o padrão funcional de 2020 e verificação da estabilidade estática dos diretórios de controle.
+
+<div align="center">
+  <img src="Evid%C3%AAncias/organiza%C3%A7%C3%A3o%20area%20de%20trabalho.jpg" style="width:30%;" alt="Organização da área de trabalho"/>
+</div>
+
+<br/>
+
+* **Etapa 2 (Tarde):** Execução do protocolo de atualização de firmware na controladora física Titan Quad. O sistema apresentou uma falha no barramento de escrita, fazendo com que o driver permanecesse retido na versão legada `1.0.0`. O erro foi isolado para análise de hardware e abertura de relatório de falhas.
+
+<div align="center">
+  <img src="Evid%C3%AAncias/problema%20atualizar%20titan.jpg" style="width:30%;" alt="Problema na atualização da Titan"/>
+</div>
+
+<br/>
+
+* **Etapa 3 (Final):** Inicialização do ecossistema simulado utilizando a interface básica do MockDS para forçar chaveamento lógico, acompanhando de forma concorrente a plotagem e leitura de dados variáveis nos grafos de telemetria do Shuffleboard.
+
+<div align="center">
+  <img src="Evid%C3%AAncias/ambiente%20de%20simula%C3%A7%C3%A3o.jpg" style="width:30%;" alt="Ambiente de simulação"/>
+</div>
 
 <br/>
 
@@ -76,19 +95,19 @@ Acesse abaixo os registros detalhados de cada sessão de treinamento executada e
 
 ## ✅ Checklist de Validação de Hardware & Casos de Borda
 
-* **Teste Válido (Compilação):** Execução nominal do build do GradleRIO gerando status `BUILD SUCCESSFUL` sem avisos ou erros de sintaxe pendentes no terminal do VS Code[cite: 2].
-* **Teste de Limite (Transição de Estado):** Ciclo sequencial repetido 3 vezes (Inicializar -> Desabilitar -> Habilitar -> Desabilitar) via MockDS, assegurando a precisão temporal dos logs de mudança de modo do robô[cite: 2].
-* **Teste de Borda (Diagnóstico de Sintaxe):** Simulação de falha induzida por omissão de terminação de código (ponto e vírgula) e alteração de escopo de métodos lógicos para certificar a capacidade de identificar rapidamente arquivo e linha exatos no terminal sem recorrer a tentativas aleatórias[cite: 2].
+* **Teste Válido (Integração Lógica):** Reconhecimento imediato do tráfego de dados e inicialização nominal das variáveis de estado no ambiente Shuffleboard sob comandos ativos enviados via interface gráfica do MockDS.
+* **Teste de Limite (Versionamento):** Compilação completa do código-fonte utilizando a suite GradleRIO na versão configurada de 2020, mitigando erros de compatibilidade de API de desenvolvimento antigo.
+* **Teste de Borda (Falha de Firmware Bloqueado):** Tentativa sistemática de deploy e injeção do novo firmware na Titan Quad com interrupção forçada por erro de barramento, validando que, apesar de não atualizar e reter a versão `1.0.0`, o sistema mantém sua integridade de boot sem inutilizar os canais periféricos.
 
 ---
 
 ## 🚨 Critérios de Parada Crítica (Safe Mode)
 
-De acordo com o plano operacional estabelecido, o treinamento deve ser interrompido imediatamente e uma issue de manutenção deve ser aberta no repositório caso qualquer um dos seguintes cenários seja detectado[cite: 2]:
-1. Bateria com avaria física visível ou tensão de circuito aberto abaixo de **12V**[cite: 2].
-2. Mecanismo físico de Parada de Emergência (E-Stop) obstruído ou botões de Start/Stop sem identificação clara[cite: 2].
-3. Fusíveis de proteção da placa controladora Titan Quad rompidos, ausentes ou substituídos por especificações incorretas[cite: 2].
-4. Cabos elétricos ou chicotes de potência sem etiquetas de identificação de origem e destino[cite: 2].
+De acordo com o plano operacional estabelecido, o treinamento deve ser interrompido imediatamente e uma issue de manutenção deve ser aberta no repositório caso qualquer um dos seguintes cenários seja detectado:
+1. Bateria com avaria física visível ou tensão de circuito aberto abaixo de **12V**.
+2. Mecanismo físico de Parada de Emergência (E-Stop) obstruído ou botões de Start/Stop sem identificação clara.
+3. Fusíveis de proteção da placa controladora Titan Quad rompidos, ausentes ou substituídos por especificações incorretas.
+4. Cabos elétricos ou chicotes de potência sem etiquetas de identificação de origem e destino.
 
 ---
 <p align="center"><i>Diário Técnico desenvolvido sob as diretrizes de alta performance da Skill #23 - WorldSkills.</i></p>
