@@ -70,7 +70,7 @@ Acesse abaixo os registros detalhados de cada sessão de treinamento executada e
 * **Etapa 1 (Manhã):** Limpeza geral e classificação dos programas do ambiente de desenvolvimento. Atualização sistemática do stack WPILib para o padrão funcional de 2020 e verificação da estabilidade estática dos diretórios de controle.
 
 <div align="center">
-  <img src="Evid%C3%AAncias/organiza%C3%A7%C3%A3o%20area%20de%20trabalho.jpg" style="width:30%;" alt="Organização da área de trabalho"/>
+  <img src="https://github.com/vitorZamir9/WorldSkill_Senai-23/blob/03c902be67f7e7522d6adad7db5e376ffef7fd39/Zamir/Evid%C3%AAncias/organiza%C3%A7%C3%A3o%20area%20de%20trabalho.png" style="width:30%;" alt="Organização da área de trabalho"/>
 </div>
 
 <br/>
