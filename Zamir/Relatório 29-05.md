@@ -78,9 +78,9 @@ Acesse abaixo os registros detalhados de cada sessão de treinamento executada e
 Abaixo está o registro em vídeo apresentando os componentes do kit, os procedimentos de segurança elétrica adotados e a verificação estática do posto de trabalho:
 
 <div align="center">
-  <video src="Evid%C3%AAncias/semana01_bancada.mp4" width="60%" controls></video>
+  <video src="https://github.com/vitorZamir9/WorldSkill_Senai-23/blob/90ca89f79aa93f9abffa31769035af0ebc3281ca/Zamir/Evid%C3%AAncias/verifica%C3%A7%C3%A3o%20dos%20itens.mp4" width="60%" controls></video>
   <br/>
-  <sup><i>Apresentação Técnico: Baseline de Bancada e Alinhamento Estratégico (Duração: 60-90s).</i></sup>
+  <sup><i>Apresentação Técnico: Baseline de Bancada e Alinhamento Estratégico (Duração: 38s).</i></sup>
 </div>
 
 ---
