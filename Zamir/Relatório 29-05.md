@@ -75,7 +75,7 @@ Acesse abaixo os registros detalhados de cada sessão de treinamento executada e
 ---
 
 ## 🎥 Demonstração Prática de Prontidão Operacional
-Abaixo está o registro em vídeo apresentando os componentes do kit, os procedimentos de segurança elétrica adotados e a verificação estática do posto de trabalho:
+Abaixo está o registro em vídeo apresentando os componentes do kit, os procedimentos de segurança elétrica adotados e a verificação estática do posto de trabalho:(baixar vídeo na pasta evidências)
 
 <div align="center">
   <video src="https://github.com/vitorZamir9/WorldSkill_Senai-23/blob/90ca89f79aa93f9abffa31769035af0ebc3281ca/Zamir/Evid%C3%AAncias/verifica%C3%A7%C3%A3o%20dos%20itens.mp4" width="60%" controls></video>
