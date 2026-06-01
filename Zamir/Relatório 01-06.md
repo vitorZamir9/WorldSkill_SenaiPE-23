@@ -86,7 +86,7 @@ Acesse abaixo os registros detalhados de cada sessão de treinamento executada e
 * **Etapa 3 (Final):** Inicialização do ecossistema simulado utilizando a interface básica do MockDS para forçar chaveamento lógico, acompanhando de forma concorrente a plotagem e leitura de dados variáveis nos grafos de telemetria do Shuffleboard.
 
 <div align="center">
-  <img src="Evid%C3%AAncias/ambiente%20de%20simula%C3%A7%C3%A3o.jpg" style="width:30%;" alt="Ambiente de simulação"/>
+  <img src="https://github.com/vitorZamir9/WorldSkill_Senai-23/blob/605eb33c4295273dd9786b92f411022760504bb2/Zamir/Evid%C3%AAncias/ambiente%20de%20simula%C3%A7%C3%A3o.png" style="width:30%;" alt="Ambiente de simulação"/>
 </div>
 
 <br/>
