@@ -48,7 +48,7 @@ Acesse abaixo os registros detalhados de cada sessão de treinamento executada e
 
 <br/>
 
-* **Análise de Riscos Elétricos e Organização de Fusíveis:** Mapeamento preventivo dos fusíveis de proteção da Titan Quad[cite: 1]. Eles atuam como a primeira linha de defesa contra sobrecorrente e curtos-circuitos elétricos, protegendo os circuitos lógicos internos da controladora e os canais dos motores caso ocorra um pico abrupto de corrente (como em cenários de stall).
+* **Análise de Riscos Elétricos e Organização de Fusíveis:** Mapeamento preventivo dos fusíveis de proteção da Titan Quad. Eles atuam como a primeira linha de defesa contra sobrecorrente e curtos-circuitos elétricos, protegendo os circuitos lógicos internos da controladora e os canais dos motores caso ocorra um pico abrupto de corrente (como em cenários de stall).
 
 <div align="center">
   <img src="Evid%C3%AAncias/titan_fusiveis.jpg" style="width:30%;" alt="Organização dos fusíveis da Titan"/>
@@ -56,7 +56,7 @@ Acesse abaixo os registros detalhados de cada sessão de treinamento executada e
 
 <br/>
 
-* **Identificação de Baixa Tensão na Bateria:** Monitoramento em tempo real através do software de telemetria para identificar quedas de tensão críticas (abaixo de 12V)[cite: 1]. Essa medição previne danos permanentes às células da bateria e previne comportamentos imprevisíveis (brownouts) no robô durante a execução das tarefas.
+* **Identificação de Baixa Tensão na Bateria:** Monitoramento em tempo real através do software de telemetria para identificar quedas de tensão críticas (abaixo de 12V). Essa medição previne danos permanentes às células da bateria e previne comportamentos imprevisíveis (brownouts) no robô durante a execução das tarefas.
 
 <div align="center">
   <img src="Evid%C3%AAncias/baixa%20tens%C3%A3o%20bateria.jpg" style="width:20%;" alt="Identificação de baixa tensão na bateria"/>
