@@ -13,7 +13,7 @@ public class DriveTrain extends Subsystem {
     public final Titan.Motor rightMotor1;
 
     public DriveTrain() {
-        titan0 = new Titan(42); 
+        titan0 = new Titan(1); 
         
         leftMotor0 = titan0.getMotor(0);
         leftMotor1 = titan0.getMotor(1);

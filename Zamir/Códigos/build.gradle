@@ -1,18 +1,21 @@
 plugins {
     id "java"
-    // Forçamos a versão 2020, que é a que você tem instalada localmente
-    id "edu.wpi.first.GradleRIO" version "2020.3.2"
+    id "com.kauailabs.first.GradleRIO" version "2020.3.2.30"
 }
 
-// Configuração de compatibilidade para o Java 11 (padrão do WPILib 2020)
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
+// ESTE É O BLOCO QUE FALTAVA PARA BAIXAR AS BIBLIOTECAS MAIS RÁPIDO
+repositories {
+    mavenCentral()
+}
+
 deploy {
     targets {
-        roboRIO("roborio") {
+        vmxpi("roborio") {
             team = frc.getTeamNumber()
         }
     }
@@ -31,11 +34,11 @@ deploy {
 
 dependencies {
     implementation wpi.deps.wpilib()
-    nativeZip wpi.deps.wpilibJni(wpi.platforms.roborio)
+    nativeZip wpi.deps.wpilibJni(wpi.platforms.raspbian)
     nativeDesktopZip wpi.deps.wpilibJni(wpi.platforms.desktop)
 
     implementation wpi.deps.vendor.java()
-    nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)
+    nativeZip wpi.deps.vendor.jni(wpi.platforms.raspbian)
     nativeDesktopZip wpi.deps.vendor.jni(wpi.platforms.desktop)
 
     testImplementation 'junit:junit:4.12'
