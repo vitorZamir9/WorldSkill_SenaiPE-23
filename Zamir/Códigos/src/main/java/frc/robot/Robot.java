@@ -14,14 +14,15 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         // Inicializa a tração
         driveTrain = new DriveTrain();
-        
         // Inicializa o MockDS (Ele cria a ponte de rede internamente)
         ds = new MockDS(); 
-    }
-
-    @Override
-    public void robotPeriodic() {
+      }
+      
+      @Override
+      public void robotPeriodic() {
         Scheduler.getInstance().run();
+        driveTrain.mover(1, 1); 
+        //driveTrain.mover(0.3, 0.3); 
     }
 
     // --- TESTE DE HARDWARE ---
@@ -29,12 +30,12 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousPeriodic() {
         // Se você colocar o MockDS em modo "Autonomous" e habilitar (Enable), os motores vão girar!
-        driveTrain.mover(0.3, 0.3); // 30% da velocidade
+        //driveTrain.mover(0.3, 0.3); // 30% da velocidade
     }
 
     @Override
     public void disabledPeriodic() {
         // Quando você der "Disable" no MockDS, isso garante que o robô para na hora (Segurança!)
-        driveTrain.parar();
+        //driveTrain.parar();
     }
 }
