@@ -2,18 +2,15 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import frc.robot.subsystems.DriveTrain;
+import frc.robot.Constants;
 import com.studica.frc.MockDS;
 
 public class Robot extends TimedRobot {
     
-    public static DriveTrain driveTrain;
     private MockDS ds;
 
     @Override
     public void robotInit() {
-        // Inicializa a tração
-        driveTrain = new DriveTrain();
         // Inicializa o MockDS (Ele cria a ponte de rede internamente)
         ds = new MockDS(); 
       }
@@ -21,7 +18,6 @@ public class Robot extends TimedRobot {
       @Override
       public void robotPeriodic() {
         Scheduler.getInstance().run();
-        driveTrain.mover(1, 1); 
         //driveTrain.mover(0.3, 0.3); 
     }
 
