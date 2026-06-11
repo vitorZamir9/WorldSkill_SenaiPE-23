@@ -8,8 +8,12 @@ targetCompatibility = JavaVersion.VERSION_11
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
-// ESTE É O BLOCO QUE FALTAVA PARA BAIXAR AS BIBLIOTECAS MAIS RÁPIDO
 repositories {
+    // 1º: Servidor da FIRST (WPI)
+    maven { url "https://frcmaven.wpi.edu/maven/release" }
+    // 2º: Servidor da Studica
+    maven { url "https://dev.studica.com/maven/release" }
+    // 3º: O central por último
     mavenCentral()
 }
 
