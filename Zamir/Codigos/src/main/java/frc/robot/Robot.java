@@ -5,6 +5,7 @@ import com.studica.frc.MockDS;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Scheduler;
 
 public class Robot extends TimedRobot {
@@ -16,17 +17,20 @@ public class Robot extends TimedRobot {
 
     private MockDS ds;
 
-    private DigitalInput  btnStart;
-    private DigitalInput  btnStop;
+    private DigitalInput btnStart;
+    private DigitalInput btnStop;
     private DigitalOutput led1;
     private DigitalOutput led2;
 
-    private volatile boolean active = false;
-    private Thread controlThread;
+    private boolean active = false;
+    private boolean lastStart = false; 
+    private boolean lastStop = false;
+
+    private Timer autoTimer = new Timer();
 
     @Override
     public void robotInit() {
-        titan  = new Titan(Constants.TITAN_ID);
+        titan = new Titan(Constants.TITAN_ID);
         motor0 = titan.getMotor(Constants.MOTOR_0);
         motor1 = titan.getMotor(Constants.MOTOR_1);
         motor2 = titan.getMotor(Constants.MOTOR_2);
@@ -34,68 +38,118 @@ public class Robot extends TimedRobot {
         ds = new MockDS();
 
         btnStart = new DigitalInput(Constants.BTN_START);
-        btnStop  = new DigitalInput(Constants.BTN_STOP);
-        led1     = new DigitalOutput(Constants.LED_1);
-        led2     = new DigitalOutput(Constants.LED_2);
-
-        led1.set(true);
-        led2.set(true);
-
-        controlThread = new Thread(() -> {
-            boolean lastStart = btnStart.get();
-
-            while (!Thread.interrupted()) {
-                boolean curStart = btnStart.get();
-
-                // Toggle: cada clique inverte o estado
-                if (!curStart && lastStart) {
-                    active = !active;
-                    //led1.set(active);
-                    led2.set(!active);
-                }
-
-                if (active) {
-                    ds.enable();
-                } else {
-                    ds.disable();
-                }
-
-                lastStart = curStart;
-
-                try {
-                    Thread.sleep(5);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        });
-        controlThread.setDaemon(true);
-        controlThread.setPriority(Thread.MAX_PRIORITY);
-        controlThread.start();
+        btnStop = new DigitalInput(Constants.BTN_STOP);
+        led1 = new DigitalOutput(Constants.LED_1);
+        led2 = new DigitalOutput(Constants.LED_2);
     }
 
     @Override
     public void robotPeriodic() {
         Scheduler.getInstance().run();
+
+        // 1. Lê o estado ATUAL dos botões
+        boolean curStart = btnStart.get();
+        boolean curStop = btnStop.get();
+
+        // 2. Detecta se o botão START foi pressionado AGORA
+        // (A lógica aqui assume que o botão retorna false ao ser pressionado - active low)
+        if (lastStart && !curStart) { 
+            ds.enable();
+            led1.set(false);
+            led2.set(true);
+            System.out.println("Comando: Habilitar enviado.");
+        }
+
+        // 3. Detecta se o botão STOP foi pressionado AGORA
+        if (lastStop && !curStop) {
+            ds.disable();
+            led1.set(true);
+            led2.set(false);
+            System.out.println("Comando: Desabilitar enviado.");
+        }
+
+        // 4. Salva o estado atual para comparar na próxima volta do loop
+        lastStart = curStart;
+        lastStop = curStop;
+    }
+
+    @Override
+    public void autonomousInit() {
+        autoTimer.reset();
+        autoTimer.start();
     }
 
     @Override
     public void autonomousPeriodic() {
-        if (active) {
-            motor0.set(Constants.VELOCIDADE);
-            motor1.set(Constants.VELOCIDADE);
-            motor2.set(Constants.VELOCIDADE);
-        } else {
+
+        double time = autoTimer.get();
+        
+        // Sequência de 3 blocos de movimento
+        if (time < 1.0) {
+            // Bloco 1
+            //motor0.set(1.0); //gira
+            //motor1.set(1.0);
+            //motor2.set(1.0);
+        } else if (time < 2.0) {
+            // Bloco 2
             motor0.set(0.0);
-            motor1.set(0.0);
+            motor1.set(0.5); //frente
+            motor2.set(-0.5);
+        } else if (time < 3.0) {
+            // Bloco 3
+            motor0.set(0.0);
+            motor1.set(-0.5); //tras
+            motor2.set(0.5);
+        }else if (time < 4.0) {
+            // Bloco 4
+            motor0.set(-0.5);
+            motor1.set(0.5); //esquerda
             motor2.set(0.0);
+        }else if (time < 5.0) {
+            // Bloco 5
+            motor0.set(0.5);
+            motor1.set(-0.5); //esquerda pro meio
+            motor2.set(0.0);
+        }else if (time < 6.0) {
+            // Bloco 6
+            motor0.set(0.5);
+            motor1.set(0.0); //direita
+            motor2.set(-0.5);
+        }else if (time < 7.0) {
+            // Bloco 7
+            motor0.set(-0.5);
+            motor1.set(0.0); //direita pro meio
+            motor2.set(0.5);
+        }else if (time < 8.0) {
+            // Bloco 8
+            motor0.set(1.0); 
+            motor1.set(1.0); //gira
+            motor2.set(1.0);
         }
+        else if (time < 13.0) {
+            //nada
+        }else {
+            // Finalizado
+            stopMotors();
+            ds.disable();
+        }
+    }
+    
+    private void stopMotors() {
+        motor0.set(0.0);
+        motor1.set(0.0);
+        motor2.set(0.0);
     }
 
     @Override
     public void disabledPeriodic() {
-        motor0.set(0.0);
-        motor1.set(0.0);
-        motor2.set(0.0);
+        stopMotors();
+        led1.set(true);
+    }
+
+    @Override
+    public void disabledInit() {
+        stopMotors();
+        led1.set(true);
     }
 }
