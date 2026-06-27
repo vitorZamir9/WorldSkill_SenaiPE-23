@@ -10,48 +10,49 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+/**
+ * ============================================================
+ *  CÓDIGO DE TESTE — Chassi Omni 3 Rodas
+ * ============================================================
+ *
+ *  BLOCOS DISPONÍVEIS:
+ *
+ *  moverDistancia(String dir, double metros)
+ *    dir: "F"  → frente
+ *         "B"  → ré
+ *         "SR" → lateral direita
+ *         "SL" → lateral esquerda
+ *    metros: distância alvo em metros (usa encoders)
+ *
+ *  executarGiro(double grausAlvo)
+ *    grausAlvo: positivo = horário, negativo = anti-horário
+ *    (usa gyro VMX via PID)
+ *
+ *  SEQUÊNCIA ATUAL:
+ *  ┌──────┬──────────────────────────────────────────────────┐
+ *  │  0   │ moverDistancia("F",  0.5)  → frente 0.5 m       │
+ *  │  1   │ moverDistancia("SR", 0.4)  → direita 0.4 m      │
+ *  │  2   │ moverDistancia("SL", 0.4)  → esquerda 0.4 m     │
+ *  │  3   │ moverDistancia("B",  0.5)  → ré 0.5 m           │
+ *  │  fim │ PARAR                                            │
+ *  └──────┴──────────────────────────────────────────────────┘
+ */
 public class Robot extends TimedRobot {
 
-    private static final double[][] WAYPOINTS = {
-        // { x,     y,    graus,  girar }
-        {  0.5,   0.5,   0.0,    0 },
-        {  0.0,   0.0,   0.0,    0 },
-    };
-
     // =========================================================
-    //  PID — Translação
+    //  Configurações — translação
     // =========================================================
-    private static final double KP_POS = 0.8;
-    private static final double KI_POS = 0.0;
-    private static final double KD_POS = 0.02;
+    private static final double VEL_MOVE      = 0.5;
 
-    // =========================================================
-    //  PID — Rotação
-    // =========================================================
-    private static final double KP_ROT = 0.005;
-    private static final double KI_ROT = 0.001;
-    private static final double KD_ROT = 0.0002;
-
-    private static final double TOLERANCE_POS_M   = 0.05;
-    private static final double TOLERANCE_ROT_DEG = 2.0;
-
-    private static final double MAX_SPEED_TRANS = 0.7;
-    private static final double MAX_SPEED_ROT   = 0.5;
-
-    private static final double DEADBAND_TRANS = 0.20;
-    private static final double DEADBAND_ROT   = 0.20;
-
-    private static final double DT = 0.02;
-
-    // Anti-windup correto — quando KI=0 o limite é infinito (integrador
-    // não acumula de qualquer forma pois ki*integral = 0)
-    private static final double INTEGRAL_MAX_POS = (KI_POS > 1e-9) ? (0.3 / KI_POS) : Double.MAX_VALUE;
-    private static final double INTEGRAL_MAX_ROT = (KI_ROT > 1e-9) ? (0.2 / KI_ROT) : 200.0;
+    // Configurações — giro
+    private static final double KP_ROT           = 0.1;
+    private static final double DEADBAND_ROT     = 0.15;
+    private static final double TOLERANCE_DEG    = 3.0;  // tolerância angular
+    private static final int    CICLOS_ESTAVEIS  = 10;   // ciclos dentro da tolerância para confirmar parada
 
     // =========================================================
     //  Hardware
     // =========================================================
-
     private AHRS gyro;
 
     private Titan       titan;
@@ -59,27 +60,35 @@ public class Robot extends TimedRobot {
     private Titan.Motor motor2;
     private Titan.Motor motor3;
 
+    private Titan.Encoder enc0;
+    private Titan.Encoder enc2;
+    private Titan.Encoder enc3;
+
     private MockDS ds;
 
     private DigitalInput  btnStart;
     private DigitalInput  btnStop;
-    private DigitalOutput led1;
-    private DigitalOutput led2;
-    private DigitalOutput led3;
-    private DigitalOutput led4;
+    private DigitalOutput led1, led2, led3, led4;
 
     private boolean lastStart = false;
     private boolean lastStop  = false;
 
-    private ThreeWheelOmniOdometry odometry;
+    // =========================================================
+    //  Estado da sequência
+    // =========================================================
+    private int     etapa         = 0;
+    private boolean etapaIniciada = false;
 
-    private int     waypointIndex = 0;
-    private boolean rotating      = false;
-    private boolean autoFinished  = false;
+    // Estado — bloco moverDistancia
+    private boolean moveIniciado  = false;
+    private boolean moveConcluido = false;
 
-    private double integralX    = 0, integralY    = 0, integralRot  = 0;
-    private double lastErrorX   = 0, lastErrorY   = 0, lastErrorRot = 0;
+    // Estado — bloco executarGiro
+    private boolean giroIniciado  = false;
+    private boolean giroConcluido = false;
+    private int     ciclosEstaveis = 0;
 
+    // =========================================================
     @Override
     public void robotInit() {
         gyro = new AHRS(SPI.Port.kMXP);
@@ -89,11 +98,9 @@ public class Robot extends TimedRobot {
         motor2 = titan.getMotor(Constants.MOTOR_2);
         motor3 = titan.getMotor(Constants.MOTOR_3);
 
-        Titan.Encoder enc0 = titan.getEncoder(Constants.ENCODER_0, Constants.DIST_PER_TICK);
-        Titan.Encoder enc2 = titan.getEncoder(Constants.ENCODER_2, Constants.DIST_PER_TICK);
-        Titan.Encoder enc3 = titan.getEncoder(Constants.ENCODER_3, Constants.DIST_PER_TICK);
-
-        odometry = new ThreeWheelOmniOdometry(enc0, enc2, enc3);
+        enc0 = titan.getEncoder(Constants.ENCODER_0, Constants.DIST_PER_TICK);
+        enc2 = titan.getEncoder(Constants.ENCODER_2, Constants.DIST_PER_TICK);
+        enc3 = titan.getEncoder(Constants.ENCODER_3, Constants.DIST_PER_TICK);
 
         ds       = new MockDS();
         btnStart = new DigitalInput(Constants.BTN_START);
@@ -108,9 +115,6 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         Scheduler.getInstance().run();
 
-        double gyroAngle = -gyro.getAngle();
-        odometry.updateWithGyro(gyroAngle);
-
         boolean curStart = btnStart.get();
         boolean curStop  = btnStop.get();
 
@@ -118,22 +122,24 @@ public class Robot extends TimedRobot {
             ds.enable();
             led1.set(true);  led2.set(false);
             led3.set(true);  led4.set(false);
-            System.out.println("Habilitar enviado.");
         }
         if (lastStop && !curStop) {
             ds.disable();
             led1.set(false); led2.set(true);
             led3.set(false); led4.set(true);
-            System.out.println("Desabilitar enviado.");
         }
 
         lastStart = curStart;
         lastStop  = curStop;
 
-        SmartDashboard.putNumber("Gyro/Angle_deg",    gyroAngle);
-        SmartDashboard.putBoolean("Gyro/Calibrating", gyro.isCalibrating());
+        SmartDashboard.putNumber("Encoder/dist0_m",  enc0.getDistance());
+        SmartDashboard.putNumber("Encoder/dist2_m",  enc2.getDistance());
+        SmartDashboard.putNumber("Encoder/dist3_m",  enc3.getDistance());
+        SmartDashboard.putNumber("Gyro/Angulo_deg",  gyro.getAngle());
+        SmartDashboard.putNumber("Sequencia/Etapa",  etapa);
     }
 
+    // =========================================================
     @Override
     public void autonomousInit() {
         while (gyro.isCalibrating()) {
@@ -141,161 +147,169 @@ public class Robot extends TimedRobot {
         }
         gyro.zeroYaw();
 
-        odometry.resetPose(0.0, 0.0, 0.0);
-        waypointIndex = 0;
-        autoFinished  = false;
-        rotating      = false;
-        resetPID();
-        System.out.println("Autônomo iniciado. Waypoints: " + WAYPOINTS.length);
+        enc0.reset();
+        enc2.reset();
+        enc3.reset();
+
+        resetarTudo();
     }
 
     @Override
     public void autonomousPeriodic() {
-        if (autoFinished) { stopMotors(); return; }
-
-        double curX   = odometry.getX();
-        double curY   = odometry.getY();
-        double curDeg = odometry.getThetaDeg();
-
-        double[] wp           = WAYPOINTS[waypointIndex];
-        double   targetX      = wp[0];
-        double   targetY      = wp[1];
-        double   targetDeg    = wp[2];
-        boolean  shouldRotate = (wp[3] == 1);
-
-        SmartDashboard.putNumber("Auto/WP_index",     waypointIndex);
-        SmartDashboard.putNumber("Auto/ErrorX_m",     targetX - curX);
-        SmartDashboard.putNumber("Auto/ErrorY_m",     targetY - curY);
-        SmartDashboard.putNumber("Auto/Dist_m",       Math.hypot(targetX - curX, targetY - curY));
-        SmartDashboard.putNumber("Auto/ErrorRot_deg", normalizeAngle180(targetDeg - curDeg));
-
-        // ---- Fase 1: translação ----------------------------------------
-        if (!rotating) {
-            double errorX = targetX - curX;
-            double errorY = targetY - curY;
-            double dist   = Math.hypot(errorX, errorY);
-
-            if (dist < TOLERANCE_POS_M) {
-                if (shouldRotate) {
-                    rotating = true;
-                    resetRotPID();
-                    System.out.printf("WP %d: posição OK (%.3f m) → girando para %.1f°%n",
-                            waypointIndex, dist, targetDeg);
-                } else {
-                    advanceWaypoint();
-                }
-                stopMotors();
-                return;
-            }
-
-            // Velocidade máxima com rampa de desaceleração nos últimos 0.4 m
-            // Evita o robô chegar em alta velocidade e ultrapassar o alvo
-            double speedLimit = MAX_SPEED_TRANS * Math.min(1.0, dist / 0.4);
-            speedLimit = Math.max(speedLimit, DEADBAND_TRANS + 0.05); // mínimo para vencer atrito
-
-            double vxField = pidCalc(errorX, integralX, lastErrorX,
-                                     KP_POS, KI_POS, KD_POS, speedLimit);
-            double vyField = pidCalc(errorY, integralY, lastErrorY,
-                                     KP_POS, KI_POS, KD_POS, speedLimit);
-
-            // Deadband vetorial — preserva direção, não corta eixos individualmente
-            double speedMag = Math.hypot(vxField, vyField);
-            if (speedMag < DEADBAND_TRANS) {
-                vxField = 0.0;
-                vyField = 0.0;
-            } else {
-                double scale = (speedMag - DEADBAND_TRANS) / (1.0 - DEADBAND_TRANS);
-                scale   = clamp(scale, 0.0, 1.0);
-                vxField = (vxField / speedMag) * scale * speedLimit;
-                vyField = (vyField / speedMag) * scale * speedLimit;
-            }
-
-            integralX  = clamp(integralX + errorX * DT, -INTEGRAL_MAX_POS, INTEGRAL_MAX_POS);
-            integralY  = clamp(integralY + errorY * DT, -INTEGRAL_MAX_POS, INTEGRAL_MAX_POS);
-            lastErrorX = errorX;
-            lastErrorY = errorY;
-
-            double[] speeds = odometry.fieldCentricSpeeds(vxField, vyField, 0.0);
-            motor0.set(speeds[0]);
-            motor2.set(speeds[1]);
-            motor3.set(speeds[2]);
-
-        // ---- Fase 2: rotação -------------------------------------------
-        } else {
-            double errorRot = normalizeAngle180(targetDeg - curDeg);
-
-            if (Math.abs(errorRot) < TOLERANCE_ROT_DEG) {
-                System.out.printf("WP %d: rotação OK (erro=%.2f°)%n",
-                        waypointIndex, errorRot);
-                rotating = false;
-                advanceWaypoint();
-                stopMotors();
-                return;
-            }
-
-            double omega = pidCalc(errorRot, integralRot, lastErrorRot,
-                                   KP_ROT, KI_ROT, KD_ROT, MAX_SPEED_ROT);
-
-            omega = applyDeadbandScalar(omega, DEADBAND_ROT);
-
-            integralRot  = clamp(integralRot + errorRot * DT,
-                                 -INTEGRAL_MAX_ROT, INTEGRAL_MAX_ROT);
-            lastErrorRot = errorRot;
-
-            double[] speeds = odometry.fieldCentricSpeeds(0.0, 0.0, omega);
-            motor0.set(speeds[0]);
-            motor2.set(speeds[1]);
-            motor3.set(speeds[2]);
+        switch (etapa) {
+            case 0: moverDistancia("F",   0.5); break;
+            case 1: moverDistancia("SR",  0.4); break;
+            case 2: moverDistancia("SL",  0.4); break;
+            case 3: moverDistancia("B",   0.5); break;
+            default: stopMotors();              break;
         }
+
+        SmartDashboard.putNumber("Sequencia/Etapa", etapa);
     }
 
     // =========================================================
-    //  Helpers
+    //  BLOCO 1 — moverDistancia
     // =========================================================
+    private void moverDistancia(String dir, double metros) {
 
-    private void advanceWaypoint() {
-        waypointIndex++;
-        resetPID();
-        if (waypointIndex >= WAYPOINTS.length) {
-            autoFinished = true;
+        // Inicializa a etapa: zera encoders uma única vez
+        if (!moveIniciado) {
+            enc0.reset();
+            enc2.reset();
+            enc3.reset();
+            moveIniciado = true;
+            return; // espera o próximo ciclo para começar a ler
+        }
+
+        // Distância percorrida: média absoluta dos encoders relevantes
+        double distPercorrida;
+        switch (dir) {
+            case "F":
+            case "B":
+                distPercorrida = (Math.abs(enc2.getDistance())
+                               +  Math.abs(enc3.getDistance())) / 2.0;
+                break;
+            case "SR":
+            case "SL":
+                distPercorrida = (Math.abs(enc0.getDistance())
+                               +  Math.abs(enc2.getDistance())
+                               +  Math.abs(enc3.getDistance())) / 3.0;
+                break;
+            default:
+                distPercorrida = 0.0;
+        }
+
+        SmartDashboard.putNumber("Move/distPercorrida_m", distPercorrida);
+
+        // Meta atingida → para e avança
+        if (distPercorrida >= metros) {
             stopMotors();
-            ds.disable();
-            led1.set(true); led2.set(false);
-            System.out.println("Rota concluída!");
-        } else {
-            System.out.printf("Indo para WP %d -> (%.2f, %.2f)%n",
-                    waypointIndex,
-                    WAYPOINTS[waypointIndex][0],
-                    WAYPOINTS[waypointIndex][1]);
+            avancarEtapa();
+            return;
+        }
+
+        // Aplica os vetores omni
+        switch (dir) {
+            case "F":
+                motor0.set( 0.0);
+                motor2.set( VEL_MOVE);
+                motor3.set(-VEL_MOVE);
+                break;
+            case "B":
+                motor0.set( 0.0);
+                motor2.set(-VEL_MOVE);
+                motor3.set( VEL_MOVE);
+                break;
+            case "SR":
+                motor0.set( VEL_MOVE);
+                motor2.set(-VEL_MOVE * 0.3);
+                motor3.set(-VEL_MOVE * 0.5);
+                break;
+            case "SL":  // espelho exato do SR
+                motor0.set(-VEL_MOVE);
+                motor2.set( VEL_MOVE * 0.3);
+                motor3.set( VEL_MOVE * 0.5);
+                break;
+            default:
+                stopMotors();
         }
     }
 
-    private double pidCalc(double error, double integral, double lastError,
-                           double kp, double ki, double kd, double maxOut) {
-        double derivative = (error - lastError) / DT;
-        double output     = kp * error + ki * integral + kd * derivative;
-        return clamp(output, -maxOut, maxOut);
+    // =========================================================
+    //  BLOCO 2 — executarGiro
+    // =========================================================
+    private void executarGiro(double grausAlvo) {
+
+        if (!giroIniciado) {
+            gyro.zeroYaw();
+            ciclosEstaveis = 0;
+            giroIniciado = true;
+            return; // espera o próximo ciclo para começar a ler
+        }
+
+        double anguloAtual = gyro.getAngle();
+        double erro        = normalizeAngle180(grausAlvo - anguloAtual);
+
+        SmartDashboard.putNumber("Giro/erroGraus",     erro);
+        SmartDashboard.putNumber("Giro/ciclosEstaveis", ciclosEstaveis);
+
+        if (Math.abs(erro) < TOLERANCE_DEG) {
+            ciclosEstaveis++;
+            stopMotors();
+            if (ciclosEstaveis >= CICLOS_ESTAVEIS) {
+                avancarEtapa();
+            }
+            return;
+        }
+
+        // Saiu da tolerância — reseta o contador
+        ciclosEstaveis = 0;
+
+        double omega = KP_ROT * erro;
+        omega = clamp(omega, -VEL_MOVE, VEL_MOVE);
+        omega = applyDeadband(omega, DEADBAND_ROT);
+
+        motor0.set( omega);
+        motor2.set( omega);
+        motor3.set( omega);
     }
 
-    private double applyDeadbandScalar(double value, double deadband) {
-        if (Math.abs(value) < deadband) return 0.0;
-        double sign  = Math.signum(value);
-        double scale = (Math.abs(value) - deadband) / (1.0 - deadband);
-        return sign * clamp(scale, 0.0, 1.0);
+    // =========================================================
+    //  Avança etapa — reseta APENAS as flags dos blocos
+    // =========================================================
+    private void avancarEtapa() {
+        etapa++;
+        moveIniciado   = false;
+        moveConcluido  = false;
+        giroIniciado   = false;
+        giroConcluido  = false;
+        ciclosEstaveis = 0;
     }
 
-    private double clamp(double val, double min, double max) {
-        return Math.max(min, Math.min(max, val));
+    // =========================================================
+    //  Reset completo
+    // =========================================================
+    private void resetarTudo() {
+        etapa          = 0;
+        etapaIniciada  = false;
+        moveIniciado   = false;
+        moveConcluido  = false;
+        giroIniciado   = false;
+        giroConcluido  = false;
+        ciclosEstaveis = 0;
     }
 
-    private void resetPID() {
-        integralX = integralY = integralRot = 0;
-        lastErrorX = lastErrorY = lastErrorRot = 0;
+    // =========================================================
+    //  Utilitários
+    // =========================================================
+    private double applyDeadband(double v, double db) {
+        if (Math.abs(v) < db) return 0.0;
+        double sign = Math.signum(v);
+        return sign * clamp((Math.abs(v) - db) / (1.0 - db), 0.0, 1.0);
     }
 
-    private void resetRotPID() {
-        integralRot  = 0;
-        lastErrorRot = 0;
+    private double clamp(double v, double min, double max) {
+        return Math.max(min, Math.min(max, v));
     }
 
     private double normalizeAngle180(double deg) {
@@ -310,17 +324,15 @@ public class Robot extends TimedRobot {
         motor3.set(0.0);
     }
 
+    // =========================================================
     @Override
     public void disabledInit() {
         stopMotors();
+        resetarTudo();
         led1.set(false); led2.set(true);
         led3.set(false); led4.set(true);
     }
 
     @Override
-    public void disabledPeriodic() {
-        stopMotors();
-        led1.set(false); led2.set(true);
-        led3.set(false); led4.set(true);
-    }
+    public void disabledPeriodic() { stopMotors(); }
 }
