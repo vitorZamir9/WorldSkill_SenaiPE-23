@@ -74,7 +74,7 @@ public class Robot extends TimedRobot {
 
     private DigitalInput  btnStart;
     private DigitalInput  btnStop;
-    private DigitalOutput led1, led2, led3, led4;
+    private DigitalOutput led1, led2;
 
     private boolean lastStart = false;
     private boolean lastStop  = false;
@@ -102,6 +102,18 @@ public class Robot extends TimedRobot {
     private boolean giroIniciado  = false;
     private boolean giroConcluido = false;
     private int     ciclosEstaveis = 0;
+    // =========================================================
+    //  Configuracoes - sensor de parede
+    // =========================================================
+    private static final double DIST_PAREDE_MM = 150.0;
+    private static final double DIST_RECUO_M   = 0.15;  // 10 cm de recuo fixo
+    private static final double VEL_RECUO      = 0.5;
+
+    // Estado do sub-bloco de recuo
+    private boolean recuoAtivo         = false;
+    private double  encRefRecuo0       = 0.0;
+    private double  encRefRecuo2       = 0.0;
+    private double  encRefRecuo3       = 0.0;
 
     // =========================================================
     @Override
@@ -122,8 +134,6 @@ public class Robot extends TimedRobot {
         btnStop  = new DigitalInput(Constants.BTN_STOP);
         led1     = new DigitalOutput(Constants.LEDRun);
         led2     = new DigitalOutput(Constants.LEDStop);
-        led3     = new DigitalOutput(Constants.LEDRunBTN);
-        led4     = new DigitalOutput(Constants.LEDStopBTN);
 
         try {
             ultra0 = new Ultrasonic(
@@ -155,12 +165,10 @@ public class Robot extends TimedRobot {
         if (lastStart && !curStart) {
             ds.enable();
             led1.set(true);  led2.set(false);
-            led3.set(true);  led4.set(false);
         }
         if (lastStop && !curStop) {
             ds.disable();
             led1.set(false); led2.set(true);
-            led3.set(false); led4.set(true);
         }
 
         lastStart = curStart;
@@ -199,81 +207,165 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousPeriodic() {
         switch (etapa) {
-            case 0 : executarGiro(3000);        break;
-            default: stopMotors();              break;
+            case 0 : moverDistancia("F", 1.0);        break;
+            case 1 : moverDistancia("SL",1.5);        break;
+            case 2 : moverDistancia("B", 1.0);        break;
+            default: stopMotors();                    break;
         }
 
         SmartDashboard.putNumber("Sequencia/Etapa", etapa);
     }
 
     // =========================================================
-    //  BLOCO 1 - moverDistancia
+    //  BLOCO 1 - moverDistancia (com protecao de parede)
     // =========================================================
     private void moverDistancia(String dir, double metros) {
 
-        // Inicializa a etapa: zera encoders uma unica vez
         if (!moveIniciado) {
             enc0.reset();
             enc2.reset();
             enc3.reset();
             moveIniciado = true;
-            return; // espera o proximo ciclo para comecar a ler
+            recuoAtivo   = false;
+            return;
         }
 
-        // Distancia percorrida: media absoluta dos encoders relevantes
+        // ---- Sub-bloco de recuo ----
+        if (recuoAtivo) {
+            // Distancia recuada desde o inicio do recuo (absoluta)
+            double recuoFeito;
+            switch (dir) {
+                case "F":
+                case "B":
+                    recuoFeito = (Math.abs(enc2.getDistance() - encRefRecuo2)
+                            +  Math.abs(enc3.getDistance() - encRefRecuo3)) / 2.0;
+                    break;
+                default: // SR, SL
+                    recuoFeito = (Math.abs(enc0.getDistance() - encRefRecuo0)
+                            +  Math.abs(enc2.getDistance() - encRefRecuo2)
+                            +  Math.abs(enc3.getDistance() - encRefRecuo3)) / 3.0;
+                    break;
+            }
+
+            SmartDashboard.putNumber("Move/recuoFeito_m", recuoFeito);
+
+            if (recuoFeito >= DIST_RECUO_M) {
+                stopMotors();
+                recuoAtivo = false;
+                avancarEtapa();
+                return;
+            }
+
+            // Aplica recuo (oposto ao movimento)
+            switch (dir) {
+                case "F":
+                    motor0.set( 0.0);
+                    motor2.set( VEL_RECUO);
+                    motor3.set(-VEL_RECUO);
+                    break;
+                case "B":
+                    motor0.set( 0.0);
+                    motor2.set(-VEL_RECUO);
+                    motor3.set( VEL_RECUO);
+                    break;
+                case "SL":
+                    motor0.set(-VEL_RECUO);
+                    motor2.set( VEL_RECUO * 0.45);
+                    motor3.set( VEL_RECUO * 0.52);
+                    break;
+                case "SR":
+                    motor0.set( VEL_RECUO);
+                    motor2.set(-VEL_RECUO * 0.45);
+                    motor3.set(-VEL_RECUO * 0.52);
+                    break;
+                default:
+                    stopMotors();
+            }
+            return;
+        }
+
+        // ---- Distancia percorrida (movimento normal) ----
         double distPercorrida;
         switch (dir) {
             case "F":
             case "B":
                 distPercorrida = (Math.abs(enc2.getDistance())
-                               +  Math.abs(enc3.getDistance())) / 2.0;
-                break;
-            case "SR":
-            case "SL":
-                distPercorrida = (Math.abs(enc0.getDistance())
-                               +  Math.abs(enc2.getDistance())
-                               +  Math.abs(enc3.getDistance())) / 3.0;
+                            +  Math.abs(enc3.getDistance())) / 2.0;
                 break;
             default:
-                distPercorrida = 0.0;
+                distPercorrida = (Math.abs(enc0.getDistance())
+                            +  Math.abs(enc2.getDistance())
+                            +  Math.abs(enc3.getDistance())) / 3.0;
+                break;
         }
 
         SmartDashboard.putNumber("Move/distPercorrida_m", distPercorrida);
+        SmartDashboard.putBoolean("Move/recuoAtivo", recuoAtivo);
 
-        // Meta atingida -> para e avanca
+        // Meta por encoder atingida normalmente -> avanca sem recuo
         if (distPercorrida >= metros) {
             stopMotors();
             avancarEtapa();
             return;
         }
 
-        // Aplica os vetores omni
+        // ---- Verifica parede ----
+        boolean paredeDetectada = false;
         switch (dir) {
             case "F":
-                motor0.set( 0.0);
-                motor2.set( VEL_MOVE);
-                motor3.set(-VEL_MOVE);
+                paredeDetectada = ultra0.isRangeValid() && ultra0.getRangeMM() < DIST_PAREDE_MM;
+                SmartDashboard.putNumber("Move/ultra_frente_mm", ultra0.getRangeMM());
                 break;
-            case "B":
+            case "SL":
+                double distSL = getDistance1();
+                paredeDetectada = distSL < DIST_PAREDE_MM;
+                SmartDashboard.putNumber("Move/ultra_esq_mm", distSL);
+                break;
+            case "SR":
+                double distSR = getDistance2();
+                paredeDetectada = distSR < DIST_PAREDE_MM;
+                SmartDashboard.putNumber("Move/ultra_dir_mm", distSR);
+                break;
+            default:
+                paredeDetectada = false;
+        }
+
+        if (paredeDetectada) {
+            // Captura referencia exata dos encoders no momento da deteccao
+            encRefRecuo0 = enc0.getDistance();
+            encRefRecuo2 = enc2.getDistance();
+            encRefRecuo3 = enc3.getDistance();
+            recuoAtivo   = true;
+            stopMotors();
+            return;
+        }
+
+        // ---- Movimento normal ----
+        switch (dir) {
+            case "F":
                 motor0.set( 0.0);
                 motor2.set(-VEL_MOVE);
                 motor3.set( VEL_MOVE);
                 break;
-            case "SR":
-                motor0.set( VEL_MOVE);
-                motor2.set(-VEL_MOVE * 0.45);
-                motor3.set(-VEL_MOVE * 0.52);
+            case "B":
+                motor0.set( 0.0);
+                motor2.set( VEL_MOVE);
+                motor3.set(-VEL_MOVE);
                 break;
-            case "SL":  // espelho exato do SR
+            case "SR":
                 motor0.set(-VEL_MOVE);
                 motor2.set( VEL_MOVE * 0.45);
                 motor3.set( VEL_MOVE * 0.52);
+                break;
+            case "SL":
+                motor0.set( VEL_MOVE);
+                motor2.set(-VEL_MOVE * 0.45);
+                motor3.set(-VEL_MOVE * 0.52);
                 break;
             default:
                 stopMotors();
         }
     }
-
     // =========================================================
     //  BLOCO executarGiro - versao por encoder
     // =========================================================
@@ -334,11 +426,12 @@ public class Robot extends TimedRobot {
     // =========================================================
     private void avancarEtapa() {
         etapa++;
-        moveIniciado   = false;
-        moveConcluido  = false;
-        giroIniciado   = false;
-        giroConcluido  = false;
+        moveIniciado  = false;
+        moveConcluido = false;
+        giroIniciado  = false;
+        giroConcluido = false;
         ciclosEstaveis = 0;
+        recuoAtivo    = false;
     }
 
     // =========================================================
@@ -352,6 +445,7 @@ public class Robot extends TimedRobot {
         giroIniciado   = false;
         giroConcluido  = false;
         ciclosEstaveis = 0;
+        recuoAtivo     = false;
     }
 
     // =========================================================
@@ -399,7 +493,6 @@ public class Robot extends TimedRobot {
         stopMotors();
         resetarTudo();
         led1.set(false); led2.set(true);
-        led3.set(false); led4.set(true);
     }
 
     @Override
