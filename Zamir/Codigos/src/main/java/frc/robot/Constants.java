@@ -25,4 +25,10 @@ public final class Constants {
 
     public static final double VELOCIDADE = 0.5;
     public static final double DIST_PER_TICK = 0.000214659;
+
+    public static final double wheelRadius = 100; //mm
+    public static final double pulsePERRevolution = 1440;
+    public static final double gearRatio = 1/1;
+    public static final double wheelPulseRatio = pulsePERRevolution * gearRatio;
+    public static final double WHEEL_DIST_PER_TICK = (Math.PI * 2 * wheelRadius) / wheelPulseRatio;
 }

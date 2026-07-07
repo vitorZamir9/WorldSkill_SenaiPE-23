@@ -1,15 +1,22 @@
 package frc.robot;
 
+import java.util.Map;
+
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 import com.studica.frc.Titan;
 import com.studica.frc.MockDS;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Ultrasonic;
 /**
@@ -54,14 +61,14 @@ public class Robot extends TimedRobot {
     // =========================================================
     //  Variaveis novas - adiciona no topo da classe
     // =========================================================
-    private double yawAnterior    = 0.0;
-    private double anguloAcumulado = 0.0;
+    private final double yawAnterior = 0.0;
+    private final double anguloAcumulado = 0.0;
     // =========================================================
-    //  Hardware
+    // Hardware
     // =========================================================
-    private AHRS gyro;
+    private AHRS navx;
 
-    private Titan       titan;
+    private Titan titan;
     private Titan.Motor motor0;
     private Titan.Motor motor2;
     private Titan.Motor motor3;
@@ -72,55 +79,68 @@ public class Robot extends TimedRobot {
 
     private MockDS ds;
 
-    private DigitalInput  btnStart;
-    private DigitalInput  btnStop;
+    private DigitalInput btnStart;
+    private DigitalInput btnStop;
     private DigitalOutput led1, led2;
 
     private boolean lastStart = false;
-    private boolean lastStop  = false;
+    private boolean lastStop = false;
 
-
-    //==========================================================
+    // ==========================================================
     // LIDAR
-    //==========================================================
-    private Ultrasonic ultra0;  // ultra da frente
+    // ==========================================================
+    private Ultrasonic  ultra0; // ultra da frente
     private AnalogInput ultra1; // ultra esquerdo
     private AnalogInput ultra2; // ultra direito
 
-
     // =========================================================
-    //  Estado da sequencia
+    // Estado da sequencia
     // =========================================================
-    private int     etapa         = 0;
+    private int etapa = 0;
     private boolean etapaIniciada = false;
 
     // Estado - bloco moverDistancia
-    private boolean moveIniciado  = false;
+    private boolean moveIniciado = false;
     private boolean moveConcluido = false;
 
     // Estado - bloco executarGiro
-    private boolean giroIniciado  = false;
+    private boolean giroIniciado = false;
     private boolean giroConcluido = false;
-    private int     ciclosEstaveis = 0;
+    private int ciclosEstaveis = 0;
     // =========================================================
-    //  Configuracoes - sensor de parede
+    // Configuracoes - sensor de parede
     // =========================================================
-    private static final double DIST_PAREDE_MM = 150.0;
-    private static final double DIST_RECUO_M   = 0.15;  // 10 cm de recuo fixo
-    private static final double VEL_RECUO      = 0.5;
+    private static final double DIST_PAREDE_MM = 200.0;
+    private static final double DIST_PAREDE_MM2 = 10.0;
+    private static final double DIST_RECUO_M = 0.15; // 10 cm de recuo fixo
+    private static final double VEL_RECUO = 0.5;
 
     // Estado do sub-bloco de recuo
-    private boolean recuoAtivo         = false;
-    private double  encRefRecuo0       = 0.0;
-    private double  encRefRecuo2       = 0.0;
-    private double  encRefRecuo3       = 0.0;
+    private boolean recuoAtivo = false;
+    private double encRefRecuo0 = 0.0;
+    private double encRefRecuo2 = 0.0;
+    private double encRefRecuo3 = 0.0;
+    // shifiuboardi
+    private final ShuffleboardTab tab = Shuffleboard.getTab("treinamento");
+    private final NetworkTableEntry motor = tab.add("motores", 0)
+                                                .withWidget(BuiltInWidgets.kNumberSlider)
+                                                .withProperties(Map.of("min", 0, "max", 300))
+                                                .getEntry();
+    private final NetworkTableEntry ultraR = tab.add("ultraR", 0)
+                                                .getEntry();
+    private final NetworkTableEntry ultraL = tab.add("ultraL", 0)
+                                                .getEntry();
+    private final NetworkTableEntry ultraF = tab.add("ultraF", 0)
+                                                .getEntry();
+    private final NetworkTableEntry gyro = tab.add("navx", 0)
+                                                .getEntry();
 
     // =========================================================
     @Override
     public void robotInit() {
-        gyro = new AHRS(SPI.Port.kMXP);
+        navx = new AHRS(SPI.Port.kMXP);
 
-        titan  = new Titan(Constants.TITAN_ID);
+        titan = new Titan(Constants.TITAN_ID);
         motor0 = titan.getMotor(Constants.MOTOR_0);
         motor2 = titan.getMotor(Constants.MOTOR_2);
         motor3 = titan.getMotor(Constants.MOTOR_3);
@@ -129,73 +149,77 @@ public class Robot extends TimedRobot {
         enc2 = titan.getEncoder(Constants.ENCODER_2, Constants.DIST_PER_TICK);
         enc3 = titan.getEncoder(Constants.ENCODER_3, Constants.DIST_PER_TICK);
 
-        ds       = new MockDS();
+        ds = new MockDS();
         btnStart = new DigitalInput(Constants.BTN_START);
-        btnStop  = new DigitalInput(Constants.BTN_STOP);
-        led1     = new DigitalOutput(Constants.LEDRun);
-        led2     = new DigitalOutput(Constants.LEDStop);
+        btnStop = new DigitalInput(Constants.BTN_STOP);
+        led1 = new DigitalOutput(Constants.LEDRun);
+        led2 = new DigitalOutput(Constants.LEDStop);
 
         try {
-            ultra0 = new Ultrasonic(
-                    Constants.TRIG1,
-                    Constants.ECHO1
-            );
+            ultra0 = new Ultrasonic(Constants.TRIG1, Constants.ECHO1);
             ultra0.setAutomaticMode(true);
-            //sonarOk = true;
-            System.out.println("Ultrassonico iniciado com sucesso.");
-        } catch (Exception e) {
-            //sonarOk = false;
-            System.out.println("Erro ao iniciar ultrassonico:");
+            // sonarOk = true;
+            // System.out.println("Ultrassonico iniciado com sucesso.");
+        } catch (final Exception e) {
+            // sonarOk = false;
+            // System.out.println("Erro ao iniciar ultrassonico:");
             e.printStackTrace();
         }
-        ultra1   = new AnalogInput(Constants.ULTRA1);
-        ultra2   = new AnalogInput(Constants.ULTRA2);
+        ultra1 = new AnalogInput(Constants.ULTRA1);
+        ultra2 = new AnalogInput(Constants.ULTRA2);
         ultra0.setEnabled(true);
 
     }
+
     @Override
     public void robotPeriodic() {
         Scheduler.getInstance().run();
 
-        boolean curStart = btnStart.get();
-        boolean curStop  = btnStop.get();
-
-
+        final boolean curStart = btnStart.get();
+        final boolean curStop = btnStop.get();
 
         if (lastStart && !curStart) {
             ds.enable();
-            led1.set(true);  led2.set(false);
+            led1.set(true);
+            led2.set(false);
         }
         if (lastStop && !curStop) {
             ds.disable();
-            led1.set(false); led2.set(true);
+            led1.set(false);
+            led2.set(true);
         }
 
         lastStart = curStart;
-        lastStop  = curStop;
+        lastStop = curStop;
 
-        SmartDashboard.putNumber("Encoder/dist0_m",  enc0.getDistance());
-        SmartDashboard.putNumber("Encoder/dist2_m",  enc2.getDistance());
-        SmartDashboard.putNumber("Encoder/dist3_m",  enc3.getDistance());
-        SmartDashboard.putNumber("Gyro/Angulo_deg",  gyro.getAngle());
-        SmartDashboard.putNumber("Sequencia/Etapa",  etapa);
+        SmartDashboard.putNumber("Encoder/dist0_m", enc0.getDistance());
+        SmartDashboard.putNumber("Encoder/dist2_m", enc2.getDistance());
+        SmartDashboard.putNumber("Encoder/dist3_m", enc3.getDistance());
+        gyro.setDouble(navx.getYaw());
+        SmartDashboard.putNumber("Gyro/Angulo_deg", navx.getAngle());
+        SmartDashboard.putNumber("Sequencia/Etapa", etapa);
 
-
-        //========================================================================
+        // ========================================================================
         // LIDAR DEBUG
-        //========================================================================
-        SmartDashboard.putNumber("Distancia/Ultra1_mm_FRENTE",   getDistance());
+        // ========================================================================
+        ultraF.setDouble(getDistance());
+        ultraL.setDouble(getDistance1());
+        ultraR.setDouble(getDistance2());
+        SmartDashboard.putNumber("Distancia/Ultra1_mm_FRENTE", getDistance());
         SmartDashboard.putNumber("Distancia/Ultra2_mm_ESQUERDA", getDistance1());
-        SmartDashboard.putNumber("Distancia/Ultra3_mm_DIREITA",  getDistance2());
+        SmartDashboard.putNumber("Distancia/Ultra3_mm_DIREITA", getDistance2());
     }
 
     // =========================================================
     @Override
     public void autonomousInit() {
-        while (gyro.isCalibrating()) {
-            try { Thread.sleep(50); } catch (InterruptedException e) {}
+        while (navx.isCalibrating()) {
+            try {
+                Thread.sleep(50);
+            } catch (final InterruptedException e) {
+            }
         }
-        gyro.zeroYaw();
+        navx.zeroYaw();
 
         enc0.reset();
         enc2.reset();
@@ -207,26 +231,34 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousPeriodic() {
         switch (etapa) {
-            case 0 : moverDistancia("F", 1.0);        break;
-            case 1 : moverDistancia("SL",1.5);        break;
-            case 2 : moverDistancia("B", 1.0);        break;
-            default: stopMotors();                    break;
+        case 0:
+            moverDistancia("F", 1.0);
+            break;
+        case 1:
+            moverDistancia("SL", 1.5);
+            break;
+        case 2:
+            moverDistancia("B", 1.0);
+            break;
+        default:
+            stopMotors();
+            break;
         }
 
         SmartDashboard.putNumber("Sequencia/Etapa", etapa);
     }
 
     // =========================================================
-    //  BLOCO 1 - moverDistancia (com protecao de parede)
+    // BLOCO 1 - moverDistancia (com protecao de parede)
     // =========================================================
-    private void moverDistancia(String dir, double metros) {
+    private void moverDistancia(final String dir, final double metros) {
 
         if (!moveIniciado) {
             enc0.reset();
             enc2.reset();
             enc3.reset();
             moveIniciado = true;
-            recuoAtivo   = false;
+            recuoAtivo = false;
             return;
         }
 
@@ -235,16 +267,15 @@ public class Robot extends TimedRobot {
             // Distancia recuada desde o inicio do recuo (absoluta)
             double recuoFeito;
             switch (dir) {
-                case "F":
-                case "B":
-                    recuoFeito = (Math.abs(enc2.getDistance() - encRefRecuo2)
-                            +  Math.abs(enc3.getDistance() - encRefRecuo3)) / 2.0;
-                    break;
-                default: // SR, SL
-                    recuoFeito = (Math.abs(enc0.getDistance() - encRefRecuo0)
-                            +  Math.abs(enc2.getDistance() - encRefRecuo2)
-                            +  Math.abs(enc3.getDistance() - encRefRecuo3)) / 3.0;
-                    break;
+            case "F":
+            case "B":
+                recuoFeito = (Math.abs(enc2.getDistance() - encRefRecuo2) + Math.abs(enc3.getDistance() - encRefRecuo3))
+                        / 2.0;
+                break;
+            default: // SR, SL
+                recuoFeito = (Math.abs(enc0.getDistance() - encRefRecuo0) + Math.abs(enc2.getDistance() - encRefRecuo2)
+                        + Math.abs(enc3.getDistance() - encRefRecuo3)) / 3.0;
+                break;
             }
 
             SmartDashboard.putNumber("Move/recuoFeito_m", recuoFeito);
@@ -258,28 +289,28 @@ public class Robot extends TimedRobot {
 
             // Aplica recuo (oposto ao movimento)
             switch (dir) {
-                case "F":
-                    motor0.set( 0.0);
-                    motor2.set( VEL_RECUO);
-                    motor3.set(-VEL_RECUO);
-                    break;
-                case "B":
-                    motor0.set( 0.0);
-                    motor2.set(-VEL_RECUO);
-                    motor3.set( VEL_RECUO);
-                    break;
-                case "SL":
-                    motor0.set(-VEL_RECUO);
-                    motor2.set( VEL_RECUO * 0.45);
-                    motor3.set( VEL_RECUO * 0.52);
-                    break;
-                case "SR":
-                    motor0.set( VEL_RECUO);
-                    motor2.set(-VEL_RECUO * 0.45);
-                    motor3.set(-VEL_RECUO * 0.52);
-                    break;
-                default:
-                    stopMotors();
+            case "F":
+                motor0.set(0.0);
+                motor2.set(VEL_RECUO);
+                motor3.set(-VEL_RECUO);
+                break;
+            case "B":
+                motor0.set(0.0);
+                motor2.set(-VEL_RECUO);
+                motor3.set(VEL_RECUO);
+                break;
+            case "SL":
+                motor0.set(-VEL_RECUO);
+                motor2.set(VEL_RECUO * 0.45);
+                motor3.set(VEL_RECUO * 0.52);
+                break;
+            case "SR":
+                motor0.set(VEL_RECUO);
+                motor2.set(-VEL_RECUO * 0.45);
+                motor3.set(-VEL_RECUO * 0.52);
+                break;
+            default:
+                stopMotors();
             }
             return;
         }
@@ -287,16 +318,14 @@ public class Robot extends TimedRobot {
         // ---- Distancia percorrida (movimento normal) ----
         double distPercorrida;
         switch (dir) {
-            case "F":
-            case "B":
-                distPercorrida = (Math.abs(enc2.getDistance())
-                            +  Math.abs(enc3.getDistance())) / 2.0;
-                break;
-            default:
-                distPercorrida = (Math.abs(enc0.getDistance())
-                            +  Math.abs(enc2.getDistance())
-                            +  Math.abs(enc3.getDistance())) / 3.0;
-                break;
+        case "F":
+        case "B":
+            distPercorrida = (Math.abs(enc2.getDistance()) + Math.abs(enc3.getDistance())) / 2.0;
+            break;
+        default:
+            distPercorrida = (Math.abs(enc0.getDistance()) + Math.abs(enc2.getDistance())
+                    + Math.abs(enc3.getDistance())) / 3.0;
+            break;
         }
 
         SmartDashboard.putNumber("Move/distPercorrida_m", distPercorrida);
@@ -312,22 +341,22 @@ public class Robot extends TimedRobot {
         // ---- Verifica parede ----
         boolean paredeDetectada = false;
         switch (dir) {
-            case "F":
-                paredeDetectada = ultra0.isRangeValid() && ultra0.getRangeMM() < DIST_PAREDE_MM;
-                SmartDashboard.putNumber("Move/ultra_frente_mm", ultra0.getRangeMM());
-                break;
-            case "SL":
-                double distSL = getDistance1();
-                paredeDetectada = distSL < DIST_PAREDE_MM;
-                SmartDashboard.putNumber("Move/ultra_esq_mm", distSL);
-                break;
-            case "SR":
-                double distSR = getDistance2();
-                paredeDetectada = distSR < DIST_PAREDE_MM;
-                SmartDashboard.putNumber("Move/ultra_dir_mm", distSR);
-                break;
-            default:
-                paredeDetectada = false;
+        case "F":
+            paredeDetectada = ultra0.isRangeValid() && ultra0.getRangeMM() < DIST_PAREDE_MM;
+            SmartDashboard.putNumber("Move/ultra_frente_mm", ultra0.getRangeMM());
+            break;
+        case "SL":
+            final double distSL = getDistance1();
+            paredeDetectada = distSL < DIST_PAREDE_MM2;
+            SmartDashboard.putNumber("Move/ultra_esq_mm", distSL);
+            break;
+        case "SR":
+            final double distSR = getDistance2();
+            paredeDetectada = distSR < DIST_PAREDE_MM2;
+            SmartDashboard.putNumber("Move/ultra_dir_mm", distSR);
+            break;
+        default:
+            paredeDetectada = false;
         }
 
         if (paredeDetectada) {
@@ -335,41 +364,42 @@ public class Robot extends TimedRobot {
             encRefRecuo0 = enc0.getDistance();
             encRefRecuo2 = enc2.getDistance();
             encRefRecuo3 = enc3.getDistance();
-            recuoAtivo   = true;
+            recuoAtivo = true;
             stopMotors();
             return;
         }
 
         // ---- Movimento normal ----
         switch (dir) {
-            case "F":
-                motor0.set( 0.0);
-                motor2.set(-VEL_MOVE);
-                motor3.set( VEL_MOVE);
-                break;
-            case "B":
-                motor0.set( 0.0);
-                motor2.set( VEL_MOVE);
-                motor3.set(-VEL_MOVE);
-                break;
-            case "SR":
-                motor0.set(-VEL_MOVE);
-                motor2.set( VEL_MOVE * 0.45);
-                motor3.set( VEL_MOVE * 0.52);
-                break;
-            case "SL":
-                motor0.set( VEL_MOVE);
-                motor2.set(-VEL_MOVE * 0.45);
-                motor3.set(-VEL_MOVE * 0.52);
-                break;
-            default:
-                stopMotors();
+        case "F":
+            motor0.set(0.0);
+            motor2.set(-VEL_MOVE);
+            motor3.set(VEL_MOVE);
+            break;
+        case "B":
+            motor0.set(0.0);
+            motor2.set(VEL_MOVE);
+            motor3.set(-VEL_MOVE);
+            break;
+        case "SR":
+            motor0.set(-VEL_MOVE);
+            motor2.set(VEL_MOVE * 0.45);
+            motor3.set(VEL_MOVE * 0.52);
+            break;
+        case "SL":
+            motor0.set(VEL_MOVE);
+            motor2.set(-VEL_MOVE * 0.45);
+            motor3.set(-VEL_MOVE * 0.52);
+            break;
+        default:
+            stopMotors();
         }
     }
+
     // =========================================================
-    //  BLOCO executarGiro - versao por encoder
+    // BLOCO executarGiro - versao por encoder
     // =========================================================
-    private void executarGiro(double grausAlvo) {
+    private void executarGiro(final double grausAlvo) {
 
         // grausAlvo positivo = horario (M0+, M2+, M3+)
         // grausAlvo negativo = anti-horario
@@ -378,28 +408,27 @@ public class Robot extends TimedRobot {
             enc0.reset();
             enc2.reset();
             enc3.reset();
-            giroIniciado   = true;
+            giroIniciado = true;
             ciclosEstaveis = 0;
             return;
         }
 
         // Distancia alvo em metros
-        double distAlvo = Math.abs(grausAlvo) * DIST_POR_GRAU;
+        final double distAlvo = Math.abs(grausAlvo) * DIST_POR_GRAU;
 
         // Media absoluta dos 3 encoders
-        double distPercorrida = (Math.abs(enc0.getDistance())
-                            + Math.abs(enc2.getDistance())
-                            + Math.abs(enc3.getDistance())) / 3.0;
+        final double distPercorrida = (Math.abs(enc0.getDistance()) + Math.abs(enc2.getDistance())
+                + Math.abs(enc3.getDistance())) / 3.0;
 
         // Graus equivalentes ja girados
-        double grausPercorridos = distPercorrida / DIST_POR_GRAU;
-        double erro             = Math.abs(grausAlvo) - grausPercorridos;
+        final double grausPercorridos = distPercorrida / DIST_POR_GRAU;
+        final double erro = Math.abs(grausAlvo) - grausPercorridos;
 
-        SmartDashboard.putNumber("Giro/distAlvo_m",      distAlvo);
+        SmartDashboard.putNumber("Giro/distAlvo_m", distAlvo);
         SmartDashboard.putNumber("Giro/distPercorrida_m", distPercorrida);
         SmartDashboard.putNumber("Giro/grausPercorridos", grausPercorridos);
-        SmartDashboard.putNumber("Giro/erro_graus",       erro);
-        SmartDashboard.putNumber("Giro/ciclosEstaveis",   ciclosEstaveis);
+        SmartDashboard.putNumber("Giro/erro_graus", erro);
+        SmartDashboard.putNumber("Giro/ciclosEstaveis", ciclosEstaveis);
 
         // Meta atingida -> confirma parada
         if (erro < TOLERANCE_DEG) {
@@ -414,50 +443,51 @@ public class Robot extends TimedRobot {
         ciclosEstaveis = 0;
 
         // Direcao do giro pelo sinal de grausAlvo
-        double sinal = Math.signum(grausAlvo);
+        final double sinal = Math.signum(grausAlvo);
 
-        motor0.set( sinal * VEL_GIRO);
-        motor2.set( sinal * VEL_GIRO);
-        motor3.set( sinal * VEL_GIRO);
+        motor0.set(sinal * VEL_GIRO);
+        motor2.set(sinal * VEL_GIRO);
+        motor3.set(sinal * VEL_GIRO);
     }
 
     // =========================================================
-    //  Avanca etapa - reseta APENAS as flags dos blocos
+    // Avanca etapa - reseta APENAS as flags dos blocos
     // =========================================================
     private void avancarEtapa() {
         etapa++;
-        moveIniciado  = false;
+        moveIniciado = false;
         moveConcluido = false;
-        giroIniciado  = false;
+        giroIniciado = false;
         giroConcluido = false;
         ciclosEstaveis = 0;
-        recuoAtivo    = false;
+        recuoAtivo = false;
     }
 
     // =========================================================
-    //  Reset completo
+    // Reset completo
     // =========================================================
     private void resetarTudo() {
-        etapa          = 0;
-        etapaIniciada  = false;
-        moveIniciado   = false;
-        moveConcluido  = false;
-        giroIniciado   = false;
-        giroConcluido  = false;
+        etapa = 0;
+        etapaIniciada = false;
+        moveIniciado = false;
+        moveConcluido = false;
+        giroIniciado = false;
+        giroConcluido = false;
         ciclosEstaveis = 0;
-        recuoAtivo     = false;
+        recuoAtivo = false;
     }
 
     // =========================================================
-    //  Utilitarios
+    // Utilitarios
     // =========================================================
-    private double applyDeadband(double v, double db) {
-        if (Math.abs(v) < db) return 0.0;
-        double sign = Math.signum(v);
+    private double applyDeadband(final double v, final double db) {
+        if (Math.abs(v) < db)
+            return 0.0;
+        final double sign = Math.signum(v);
         return sign * clamp((Math.abs(v) - db) / (1.0 - db), 0.0, 1.0);
     }
 
-    private double clamp(double v, double min, double max) {
+    private double clamp(final double v, final double min, final double max) {
         return Math.max(min, Math.min(max, v));
     }
 
@@ -497,4 +527,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() { stopMotors(); }
+
+    
 }
