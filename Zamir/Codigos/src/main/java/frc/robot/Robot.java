@@ -1,7 +1,5 @@
 package frc.robot;
 
-import java.util.Map;
-
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 import com.studica.frc.Titan;
@@ -13,45 +11,25 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Ultrasonic;
 
-/**
- * ============================================================
- *  CHASSI OMNI 3 RODAS - Navegação por Plano Cartesiano
- * ============================================================
- *
- *  A sequência de missão é definida em FieldMap.java:
- *    - OBSTACULOS[][] : retângulos proibidos (x_min, y_min, x_max, y_max) em cm
- *    - WAYPOINTS[][]  : lista de destinos (x, y, angulo_final) em cm/graus
- *    - INICIO_X/Y/ANGULO : posição e orientação iniciais
- *
- *  O robô:
- *    1. Calcula vetor do ponto atual ao próximo waypoint
- *    2. Gira para alinhar com essa direção (executarGiro)
- *    3. Avança a distância linear calculada (moverDistancia "F")
- *    4. Se houver ângulo final no waypoint, gira para ele
- *    5. Repete para o próximo waypoint
- *
- *  Proteção de parede via ultrassônicos mantida intacta.
- * ============================================================
- */
 public class Robot extends TimedRobot {
 
     // =========================================================
-    //  Configurações - translação e giro
+    //  Configuracoes de movimento e giro
     // =========================================================
     private static final double VEL_MOVE        = 0.7;
     private static final double VEL_RECUO       = 0.5;
-    private static final double DIST_POR_GRAU   = 0.003840; // m/grau (raio=0.22m)
+    private static final double DIST_POR_GRAU   = 0.003840;
     private static final double VEL_GIRO        = 0.35;
     private static final double TOLERANCE_DEG   = 3.0;
     private static final int    CICLOS_ESTAVEIS = 10;
+    private static final double LARGURA_ROBO_CM = 40.0;
 
-    // Sensores de parede
+    // Protecao de parede (apenas sensores fisicos)
     private static final double DIST_PAREDE_MM  = 200.0;
     private static final double DIST_PAREDE_MM2 = 10.0;
     private static final double DIST_RECUO_M    = 0.15;
@@ -61,8 +39,8 @@ public class Robot extends TimedRobot {
     // =========================================================
     private AHRS navx;
     private Titan titan;
-    private Titan.Motor  motor0, motor2, motor3;
-    private Titan.Encoder enc0,  enc2,   enc3;
+    private Titan.Motor   motor0, motor2, motor3;
+    private Titan.Encoder enc0,   enc2,   enc3;
     private MockDS ds;
     private DigitalInput  btnStart, btnStop;
     private DigitalOutput led1, led2;
@@ -71,36 +49,31 @@ public class Robot extends TimedRobot {
     private boolean lastStart = false, lastStop = false;
 
     // =========================================================
-    //  Pose estimada do robô (odometria simples)
-    //  Atualizada a cada ciclo com base nos encoders
+    //  Pose estimada (odometria)
     // =========================================================
-    private double poseX_cm;   // posição atual X em cm
-    private double poseY_cm;   // posição atual Y em cm
-    private double poseAng_deg; // ângulo atual em graus (0 = +X, 90 = +Y)
-
-    // Acumuladores de encoder para odometria
+    private double poseX_cm;
+    private double poseY_cm;
+    private double poseAng_deg;
     private double lastEnc2 = 0.0;
     private double lastEnc3 = 0.0;
 
     // =========================================================
-    //  Máquina de estados da missão
+    //  Plano de sub-segmentos
     // =========================================================
-    // Fases dentro de cada waypoint:
-    //   FASE 0: calcular giro de alinhamento -> inicia executarGiro
-    //   FASE 1: giro de alinhamento em execução
-    //   FASE 2: avançar distância -> inicia moverDistancia "F"
-    //   FASE 3: movimento em execução
-    //   FASE 4: giro final (se definido no waypoint) -> inicia executarGiro
-    //   FASE 5: giro final em execução
-    private int wpIndex   = 0;  // índice do waypoint atual em FieldMap.WAYPOINTS
-    private int wpFase    = 0;  // fase dentro do waypoint atual
-
-    private double giroAlvo    = 0.0;  // ângulo calculado para alinhar com próximo wp
-    private double distAlvo_m  = 0.0;  // distância calculada até o próximo wp em metros
+    private static final int MAX_SEGS = 4;
+    private double[] segX_cm  = new double[MAX_SEGS];
+    private double[] segY_cm  = new double[MAX_SEGS];
+    private int      segCount = 0;
+    private int      segIdx   = 0;
 
     // =========================================================
-    //  Estado dos blocos primitivos (mantidos do código original)
+    //  Maquina de estados
     // =========================================================
+    private int    wpIndex    = 0;
+    private int    wpFase     = 0;
+    private double giroAlvo   = 0.0;
+    private double distAlvo_m = 0.0;
+
     private boolean moveIniciado   = false;
     private boolean giroIniciado   = false;
     private int     ciclosEstaveis = 0;
@@ -110,15 +83,16 @@ public class Robot extends TimedRobot {
     // =========================================================
     //  Shuffleboard
     // =========================================================
-    private final ShuffleboardTab   tab    = Shuffleboard.getTab("navegacao");
-    private final NetworkTableEntry ntUltraR = tab.add("ultraR", 0).getEntry();
-    private final NetworkTableEntry ntUltraL = tab.add("ultraL", 0).getEntry();
-    private final NetworkTableEntry ntUltraF = tab.add("ultraF", 0).getEntry();
-    private final NetworkTableEntry ntGyro   = tab.add("navx",   0).getEntry();
-    private final NetworkTableEntry ntPoseX  = tab.add("poseX",  0).getEntry();
-    private final NetworkTableEntry ntPoseY  = tab.add("poseY",  0).getEntry();
-    private final NetworkTableEntry ntWpIdx  = tab.add("waypoint",0).getEntry();
-    private final NetworkTableEntry ntWpFase = tab.add("fase",   0).getEntry();
+    private final ShuffleboardTab   tab      = Shuffleboard.getTab("navegacao");
+    private final NetworkTableEntry ntUltraR = tab.add("ultraR",   0).getEntry();
+    private final NetworkTableEntry ntUltraL = tab.add("ultraL",   0).getEntry();
+    private final NetworkTableEntry ntUltraF = tab.add("ultraF",   0).getEntry();
+    private final NetworkTableEntry ntGyro   = tab.add("navx",     0).getEntry();
+    private final NetworkTableEntry ntPoseX  = tab.add("poseX",    0).getEntry();
+    private final NetworkTableEntry ntPoseY  = tab.add("poseY",    0).getEntry();
+    private final NetworkTableEntry ntWpIdx  = tab.add("waypoint", 0).getEntry();
+    private final NetworkTableEntry ntWpFase = tab.add("fase",     0).getEntry();
+    private final NetworkTableEntry ntSegIdx = tab.add("segmento", 0).getEntry();
 
     // =========================================================
     @Override
@@ -147,7 +121,6 @@ public class Robot extends TimedRobot {
         }
         ultra1 = new AnalogInput(Constants.ULTRA1);
         ultra2 = new AnalogInput(Constants.ULTRA2);
-        ultra0.setEnabled(true);
     }
 
     @Override
@@ -172,12 +145,14 @@ public class Robot extends TimedRobot {
         ntPoseY.setDouble(poseY_cm);
         ntWpIdx.setDouble(wpIndex);
         ntWpFase.setDouble(wpFase);
+        ntSegIdx.setDouble(segIdx);
 
-        SmartDashboard.putNumber("Pose/X_cm",  poseX_cm);
-        SmartDashboard.putNumber("Pose/Y_cm",  poseY_cm);
-        SmartDashboard.putNumber("Pose/Ang",   poseAng_deg);
-        SmartDashboard.putNumber("Nav/WP",     wpIndex);
-        SmartDashboard.putNumber("Nav/Fase",   wpFase);
+        SmartDashboard.putNumber("Pose/X_cm", poseX_cm);
+        SmartDashboard.putNumber("Pose/Y_cm", poseY_cm);
+        SmartDashboard.putNumber("Pose/Ang",  poseAng_deg);
+        SmartDashboard.putNumber("Nav/WP",    wpIndex);
+        SmartDashboard.putNumber("Nav/Fase",  wpFase);
+        SmartDashboard.putNumber("Nav/Seg",   segIdx);
     }
 
     // =========================================================
@@ -189,113 +164,100 @@ public class Robot extends TimedRobot {
         navx.zeroYaw();
         enc0.reset(); enc2.reset(); enc3.reset();
 
-        // Inicializa pose com posição e ângulo definidos no FieldMap
-        poseX_cm   = FieldMap.INICIO_X_CM;
-        poseY_cm   = FieldMap.INICIO_Y_CM;
+        poseX_cm    = FieldMap.INICIO_X_CM;
+        poseY_cm    = FieldMap.INICIO_Y_CM;
         poseAng_deg = FieldMap.INICIO_ANGULO;
-        lastEnc2 = 0.0;
-        lastEnc3 = 0.0;
+        lastEnc2    = 0.0;
+        lastEnc3    = 0.0;
 
         resetarTudo();
     }
 
     // =========================================================
-    //  LOOP PRINCIPAL DA MISSÃO
+    //  LOOP PRINCIPAL
     // =========================================================
     @Override
     public void autonomousPeriodic() {
         atualizarOdometria();
 
-        // Missão concluída
         if (wpIndex >= FieldMap.WAYPOINTS.length) {
             stopMotors();
             SmartDashboard.putString("Nav/Status", "MISSAO_COMPLETA");
             return;
         }
 
-        final double[] wp = FieldMap.WAYPOINTS[wpIndex];
-        final double wpX       = wp[0];
-        final double wpY       = wp[1];
-        final double wpAngFinal = wp[2]; // -999 = não girar no final
+        final double[] wp         = FieldMap.WAYPOINTS[wpIndex];
+        final double   wpAngFinal = wp[2];
 
         switch (wpFase) {
 
-            // --------------------------------------------------
-            //  FASE 0: calcular giro necessário para alinhar com o waypoint
-            // --------------------------------------------------
             case 0: {
-                final double dx = wpX - poseX_cm;
-                final double dy = wpY - poseY_cm;
-                distAlvo_m = Math.sqrt(dx * dx + dy * dy) / 100.0; // cm -> m
-
-                // Ângulo do vetor destino em coordenadas do campo (graus, 0=+X, 90=+Y)
-                final double angDestino = Math.toDegrees(Math.atan2(dy, dx));
-
-                // Quanto girar a partir da orientação atual
-                giroAlvo = normalizeAngle180(angDestino - poseAng_deg);
-
-                SmartDashboard.putNumber("Nav/distAlvo_m",  distAlvo_m);
-                SmartDashboard.putNumber("Nav/angDestino",  angDestino);
-                SmartDashboard.putNumber("Nav/giroAlvo",    giroAlvo);
+                planejarRota(wp[0], wp[1]);
+                segIdx = 0;
                 SmartDashboard.putString("Nav/Status",
-                    "WP" + wpIndex + " ALINHANDO dx=" + String.format("%.1f", dx) + " dy=" + String.format("%.1f", dy));
+                    "WP" + wpIndex + " planejado segCount=" + segCount);
+                wpFase = 1;
+                break;
+            }
 
-                // Se a distância for desprezível, pula direto pro ângulo final
-                if (distAlvo_m < (FieldMap.TOLERANCIA_CHEGADA_CM / 100.0)) {
+            case 1: {
+                if (segIdx >= segCount) {
+                    poseX_cm = wp[0];
+                    poseY_cm = wp[1];
                     wpFase = (wpAngFinal > -900) ? 4 : 6;
-                    return;
+                    break;
                 }
 
-                // Se giro necessário for menor que tolerância, pula direto pro movimento
+                final double destX = segX_cm[segIdx];
+                final double destY = segY_cm[segIdx];
+                final double dx    = destX - poseX_cm;
+                final double dy    = destY - poseY_cm;
+                distAlvo_m = Math.sqrt(dx * dx + dy * dy) / 100.0;
+
+                SmartDashboard.putString("Nav/Status",
+                    "SEG" + segIdx + " dest=(" + String.format("%.1f", destX) +
+                    "," + String.format("%.1f", destY) + ")");
+
+                if (distAlvo_m < (FieldMap.TOLERANCIA_CHEGADA_CM / 100.0)) {
+                    segIdx++;
+                    break;
+                }
+
+                giroAlvo = calcularGiroAxial(dx, dy);
+                SmartDashboard.putNumber("Nav/giroAlvo", giroAlvo);
+
                 if (Math.abs(giroAlvo) < TOLERANCE_DEG) {
-                    wpFase = 2;
+                    resetBlocos();
+                    wpFase = 3;
                 } else {
+                    resetBlocos();
+                    wpFase = 2;
+                }
+                break;
+            }
+
+            case 2: {
+                final boolean ok = executarGiro(giroAlvo);
+                if (ok) {
+                    poseAng_deg = normalizeAngle180(poseAng_deg + giroAlvo);
+                    resetBlocos();
+                    wpFase = 3;
+                }
+                break;
+            }
+
+            case 3: {
+                final boolean ok = moverDistancia("F", distAlvo_m);
+                if (ok) {
+                    poseX_cm = segX_cm[segIdx];
+                    poseY_cm = segY_cm[segIdx];
+                    segIdx++;
                     resetBlocos();
                     wpFase = 1;
                 }
                 break;
             }
 
-            // --------------------------------------------------
-            //  FASE 1: executar giro de alinhamento
-            // --------------------------------------------------
-            case 1: {
-                final boolean concluido = executarGiro(giroAlvo);
-                if (concluido) {
-                    poseAng_deg = normalizeAngle180(poseAng_deg + giroAlvo);
-                    resetBlocos();
-                    wpFase = 2;
-                }
-                break;
-            }
-
-            // --------------------------------------------------
-            //  FASE 2: iniciar movimento para frente até o waypoint
-            // --------------------------------------------------
-            case 2: {
-                resetBlocos();
-                wpFase = 3;
-                break;
-            }
-
-            // --------------------------------------------------
-            //  FASE 3: executar moverDistancia até o waypoint
-            // --------------------------------------------------
-            case 3: {
-                final boolean concluido = moverDistancia("F", distAlvo_m);
-                if (concluido) {
-                    // Atualiza pose para a posição do waypoint
-                    poseX_cm   = wpX;
-                    poseY_cm   = wpY;
-                    resetBlocos();
-                    wpFase = (wpAngFinal > -900) ? 4 : 6;
-                }
-                break;
-            }
-
-            // --------------------------------------------------
-            //  FASE 4: calcular giro final do waypoint
-            // --------------------------------------------------
             case 4: {
                 giroAlvo = normalizeAngle180(wpAngFinal - poseAng_deg);
                 SmartDashboard.putNumber("Nav/giroFinal", giroAlvo);
@@ -308,21 +270,15 @@ public class Robot extends TimedRobot {
                 break;
             }
 
-            // --------------------------------------------------
-            //  FASE 5: executar giro final
-            // --------------------------------------------------
             case 5: {
-                final boolean concluido = executarGiro(giroAlvo);
-                if (concluido) {
+                final boolean ok = executarGiro(giroAlvo);
+                if (ok) {
                     poseAng_deg = wpAngFinal;
                     wpFase = 6;
                 }
                 break;
             }
 
-            // --------------------------------------------------
-            //  FASE 6: waypoint concluído -> avança para o próximo
-            // --------------------------------------------------
             case 6: {
                 stopMotors();
                 SmartDashboard.putString("Nav/Status", "WP" + wpIndex + " CONCLUIDO");
@@ -339,21 +295,98 @@ public class Robot extends TimedRobot {
     }
 
     // =========================================================
-    //  ODOMETRIA SIMPLES
-    //  Atualiza poseX, poseY com base no deslocamento dos encoders
-    //  Usa M2 e M3 (rodas F/B) como referência de translação linear
+    //  PLANEJAMENTO DE ROTA - SIMPLIFICADO
+    //  Apenas movimento axial: tenta Y depois X, se não funcionar tenta X depois Y
+    // =========================================================
+    private void planejarRota(final double destX, final double destY) {
+        segCount = 0;
+
+        final double oriX = poseX_cm;
+        final double oriY = poseY_cm;
+
+        // Tenta Y primeiro, depois X
+        if (!segmentoBateObstaculo(oriX, oriY, oriX, destY) &&
+            !segmentoBateObstaculo(oriX, destY, destX, destY)) {
+            adicionarSeg(oriX,  destY);  // Move em Y (vertical)
+            adicionarSeg(destX, destY);  // Move em X (horizontal)
+            SmartDashboard.putString("Nav/Rota", "Y_depois_X");
+            return;
+        }
+
+        // Se não deu, tenta X primeiro, depois Y
+        if (!segmentoBateObstaculo(oriX, oriY, destX, oriY) &&
+            !segmentoBateObstaculo(destX, oriY, destX, destY)) {
+            adicionarSeg(destX, oriY);   // Move em X (horizontal)
+            adicionarSeg(destX, destY);  // Move em Y (vertical)
+            SmartDashboard.putString("Nav/Rota", "X_depois_Y");
+            return;
+        }
+
+        // Fallback: force Y depois X
+        adicionarSeg(oriX,  destY);
+        adicionarSeg(destX, destY);
+        SmartDashboard.putString("Nav/Rota", "FALLBACK_Y_X");
+    }
+
+    // =========================================================
+    //  Adiciona um sub-segmento ao plano
+    // =========================================================
+    private void adicionarSeg(final double x, final double y) {
+        if (segCount < MAX_SEGS) {
+            segX_cm[segCount] = x;
+            segY_cm[segCount] = y;
+            segCount++;
+        }
+    }
+
+    // =========================================================
+    //  Verifica colisao de um segmento axial com obstaculos
+    //  Amostra pontos a cada 5cm ao longo do segmento
+    // =========================================================
+    private boolean segmentoBateObstaculo(
+            final double x1, final double y1,
+            final double x2, final double y2) {
+
+        final double dx   = x2 - x1;
+        final double dy   = y2 - y1;
+        final double dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 1.0) return false;
+
+        final int amostras = Math.max(2, (int) (dist / 5.0) + 1);
+        for (int i = 0; i <= amostras; i++) {
+            final double t  = (double) i / amostras;
+            final double px = x1 + t * dx;
+            final double py = y1 + t * dy;
+            if (FieldMap.dentroDeObstaculo(px, py)) return true;
+        }
+        return false;
+    }
+
+    // =========================================================
+    //  CALCULO DO GIRO AXIAL
+    // =========================================================
+    private double calcularGiroAxial(final double dx, final double dy) {
+        double angDestino;
+        if (Math.abs(dx) > Math.abs(dy)) {
+            angDestino = (dx >= 0) ? 0.0 : 180.0;
+        } else {
+            angDestino = (dy >= 0) ? 90.0 : -90.0;
+        }
+        return normalizeAngle180(angDestino - poseAng_deg);
+    }
+
+    // =========================================================
+    //  ODOMETRIA
     // =========================================================
     private void atualizarOdometria() {
-        final double cur2 = enc2.getDistance(); // metros
+        final double cur2 = enc2.getDistance();
         final double cur3 = enc3.getDistance();
 
         final double delta2 = cur2 - lastEnc2;
         final double delta3 = cur3 - lastEnc3;
 
-        // Distância linear percorrida (média das duas rodas de translação)
-        final double deltaD_m = (Math.abs(delta2) + Math.abs(delta3)) / 2.0;
-        // Sinal: M2 negativo = frente, M3 positivo = frente (conforme código original)
-        final double sinal = ((-delta2) + delta3) / 2.0 >= 0 ? 1.0 : -1.0;
+        final double deltaD_m  = (Math.abs(delta2) + Math.abs(delta3)) / 2.0;
+        final double sinal     = ((-delta2) + delta3) / 2.0 >= 0 ? 1.0 : -1.0;
         final double deltaD_cm = sinal * deltaD_m * 100.0;
 
         final double angRad = Math.toRadians(poseAng_deg);
@@ -365,8 +398,7 @@ public class Robot extends TimedRobot {
     }
 
     // =========================================================
-    //  BLOCO moverDistancia - agora retorna boolean (concluido)
-    //  Mantém toda a lógica original de recuo + proteção de parede
+    //  moverDistancia - retorna true quando concluido
     // =========================================================
     private boolean moverDistancia(final String dir, final double metros) {
 
@@ -379,7 +411,6 @@ public class Robot extends TimedRobot {
             return false;
         }
 
-        // ---- Sub-bloco de recuo ----
         if (recuoAtivo) {
             double recuoFeito;
             switch (dir) {
@@ -394,18 +425,15 @@ public class Robot extends TimedRobot {
                     break;
             }
             SmartDashboard.putNumber("Move/recuoFeito_m", recuoFeito);
-
             if (recuoFeito >= DIST_RECUO_M) {
                 stopMotors();
                 recuoAtivo = false;
-                return true; // parede -> considera etapa concluída (navegação vai decidir)
+                return true;
             }
-
             aplicarRecuo(dir);
             return false;
         }
 
-        // ---- Distância percorrida ----
         double distPercorrida;
         switch (dir) {
             case "F": case "B":
@@ -423,7 +451,6 @@ public class Robot extends TimedRobot {
             return true;
         }
 
-        // ---- Verifica parede ----
         boolean parede = false;
         switch (dir) {
             case "F":
@@ -448,7 +475,6 @@ public class Robot extends TimedRobot {
             return false;
         }
 
-        // ---- Movimento normal ----
         aplicarMovimento(dir);
         return false;
     }
@@ -492,8 +518,7 @@ public class Robot extends TimedRobot {
     }
 
     // =========================================================
-    //  BLOCO executarGiro - agora retorna boolean (concluido)
-    //  Mantém lógica original por encoder
+    //  executarGiro - retorna true quando concluido
     // =========================================================
     private boolean executarGiro(final double grausAlvo) {
 
@@ -504,22 +529,19 @@ public class Robot extends TimedRobot {
             return false;
         }
 
-        final double distAlvo     = Math.abs(grausAlvo) * DIST_POR_GRAU;
         final double distPercorrida = (Math.abs(enc0.getDistance()) +
                                        Math.abs(enc2.getDistance()) +
                                        Math.abs(enc3.getDistance())) / 3.0;
         final double grausPercorridos = distPercorrida / DIST_POR_GRAU;
         final double erro = Math.abs(grausAlvo) - grausPercorridos;
 
-        SmartDashboard.putNumber("Giro/erro_graus",      erro);
-        SmartDashboard.putNumber("Giro/ciclosEstaveis",  ciclosEstaveis);
+        SmartDashboard.putNumber("Giro/erro_graus",     erro);
+        SmartDashboard.putNumber("Giro/ciclosEstaveis", ciclosEstaveis);
 
         if (erro < TOLERANCE_DEG) {
             ciclosEstaveis++;
             stopMotors();
-            if (ciclosEstaveis >= CICLOS_ESTAVEIS) {
-                return true;
-            }
+            if (ciclosEstaveis >= CICLOS_ESTAVEIS) return true;
             return false;
         }
 
@@ -544,6 +566,8 @@ public class Robot extends TimedRobot {
     private void resetarTudo() {
         wpIndex    = 0;
         wpFase     = 0;
+        segIdx     = 0;
+        segCount   = 0;
         giroAlvo   = 0.0;
         distAlvo_m = 0.0;
         resetBlocos();
@@ -560,9 +584,12 @@ public class Robot extends TimedRobot {
     }
 
     // =========================================================
-    //  Sensores de distância
+    //  Sensores de distancia
     // =========================================================
-    private double getDistanceF() { return ultra0.getRangeMM(); }
+    private double getDistanceF() {
+        if (ultra0 == null) return 9999.0;
+        return ultra0.getRangeMM();
+    }
     private double getDistanceL() { return Math.pow(ultra1.getAverageVoltage(), -1.2045) * 27.726; }
     private double getDistanceR() { return Math.pow(ultra2.getAverageVoltage(), -1.2045) * 27.726; }
 

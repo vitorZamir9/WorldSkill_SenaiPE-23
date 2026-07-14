@@ -35,57 +35,58 @@ public final class FieldMap {
     // =========================================================
     //  DIMENSÕES DO CAMPO (cm)
     // =========================================================
-    public static final double CAMPO_LARGURA_CM = 300.0;  // eixo X
-    public static final double CAMPO_ALTURA_CM  = 300.0;  // eixo Y
+    public static final double CAMPO_LARGURA_CM = 873.0;
+    public static final double CAMPO_ALTURA_CM  = 341.0;
 
     // =========================================================
     //  POSIÇÃO INICIAL DO ROBÔ
-    //  x, y em cm | anguloInicial em graus (0 = olhando para +X)
     // =========================================================
-    public static final double INICIO_X_CM     = 20.0;
-    public static final double INICIO_Y_CM     = 20.0;
-    public static final double INICIO_ANGULO   = 90.0;  // robô inicia olhando para +Y (frente)
+    public static final double INICIO_X_CM   = 437.0;
+    public static final double INICIO_Y_CM   = 170.0;
+    public static final double INICIO_ANGULO = -90.0;
 
     // =========================================================
-    //  OBSTÁCULOS
-    //  Cada linha: { x_min, y_min, x_max, y_max } em cm
-    //  Adicione ou remova linhas conforme o campo
+    //  OBSTÁCULOS { x_min, y_min, x_max, y_max } em cm
     // =========================================================
     public static final double[][] OBSTACULOS = {
-        //  x_min   y_min   x_max   y_max
-        {    80.0,   80.0,  120.0,  120.0 },   // obstáculo 1 - centro
-        {   180.0,   40.0,  220.0,   90.0 },   // obstáculo 2 - direita baixo
-        {    40.0,  180.0,   90.0,  220.0 },   // obstáculo 3 - esquerda cima
+        { 428.0, 130.0, 546.0, 341.0 },  // obstáculo central
     };
 
     // =========================================================
-    //  WAYPOINTS SEQUENCIAIS
-    //  Cada linha: { x_cm, y_cm, angulo_final }
-    //  angulo_final: graus que o robô deve ter ao chegar (-999 = não girar)
-    //  O robô executa: INICIO -> WP[0] -> WP[1] -> ... -> WP[n]
+    //  MARGEM DE SEGURANÇA (cm)
     // =========================================================
-    public static final double[][] WAYPOINTS = {
-        //   x      y     angulo_final
-        {  150.0,  20.0,    -999  },   // wp 0: vai para X=150, Y=20, sem girar
-        {  150.0, 150.0,    90.0  },   // wp 1: vai para X=150, Y=150, termina olhando 90°
-        {   20.0, 150.0,   180.0  },   // wp 2: vai para X=20,  Y=150, termina olhando 180°
-    };
+    public static final double MARGEM_OBSTACULO_CM = 20.0; // aumentada de 15 para 20
 
     // =========================================================
-    //  MARGEM DE SEGURANÇA ao redor dos obstáculos (cm)
-    //  O robô evita entrar nessa zona ao planejar movimento
-    // =========================================================
-    public static final double MARGEM_OBSTACULO_CM = 15.0;
-
-    // =========================================================
-    //  TOLERÂNCIA DE CHEGADA ao waypoint (cm)
-    //  Considera chegado quando estiver a menos disso do alvo
+    //  TOLERÂNCIA DE CHEGADA (cm)
     // =========================================================
     public static final double TOLERANCIA_CHEGADA_CM = 3.0;
 
     // =========================================================
-    //  Utilitário: verifica se um ponto (px, py) está dentro
-    //  de algum obstáculo (com margem)
+    //  WAYPOINTS { x_cm, y_cm, angulo_final }
+    //
+    //  ROTA MANUAL SEGURA para ir de (372, 170.5) até (620, 90):
+    //
+    //  O obstáculo ocupa X: 408~566 (com margem 20), Y: 110~361
+    //  A faixa livre abaixo do obstáculo é Y < 110 cm.
+    //
+    //  Estratégia:
+    //    WP0: desce para Y=90  (eixo Y, livre em X=372)
+    //    WP1: avança para X=620 (eixo X, livre em Y=90)
+    //
+    //  Assim o robô nunca passa pela área do obstáculo.
+    // =========================================================
+    public static final double[][] WAYPOINTS = {
+        { 437.0,  100.0,  -999 }, 
+        //{ 100.0,  80.0,  -999 }, 
+        { 390.0,  240.0,  -999 },
+        { 350.0,  120.0,  -999 },
+        //{ 100.0,  90.0,  -999 },
+
+    };
+
+    // =========================================================
+    //  Verifica se ponto (px, py) está dentro de algum obstáculo
     // =========================================================
     public static boolean dentroDeObstaculo(final double px, final double py) {
         for (final double[] obs : OBSTACULOS) {
